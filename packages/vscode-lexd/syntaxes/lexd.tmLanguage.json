@@ -1,0 +1,67 @@
+{
+  "scopeName": "source.lexd",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#attributes" },
+    { "include": "#keywords" },
+    { "include": "#sections" },
+    { "include": "#primitives" },
+    { "include": "#numbers" },
+    { "include": "#nsids" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.lexd",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.lexd",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.lexd",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.lexd",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "attributes": {
+      "name": "entity.other.attribute-name.lexd",
+      "match": "@[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.lexd",
+          "match": "\\b(namespace|import|from|as|type|union|closed)\\b"
+        }
+      ]
+    },
+    "sections": {
+      "name": "keyword.other.section.lexd",
+      "match": "\\b(params|input|output|message|errors|permissions|encoding|schema)\\b"
+    },
+    "primitives": {
+      "name": "support.type.primitive.lexd",
+      "match": "\\b(string|integer|boolean|bytes|cid-link|blob|unknown)\\b"
+    },
+    "numbers": {
+      "name": "constant.numeric.lexd",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "nsids": {
+      "name": "entity.name.type.nsid.lexd",
+      "match": "\\b[a-z][a-z0-9]*(?:\\.[a-zA-Z][a-zA-Z0-9-]*)+(?:#[a-zA-Z_][a-zA-Z0-9_]*)?\\b"
+    }
+  }
+}
