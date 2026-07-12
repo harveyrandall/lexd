@@ -344,6 +344,25 @@ function typeToNamedDef(
     if (description !== undefined) tok.description = description
     return tok
   }
+  if (decl.isScalar) {
+    const scalarAttr = attr(decl.attributes, 'scalar')
+    const scalarType = stringArg(scalarAttr, 0)
+    if (scalarType !== 'string' && scalarType !== 'integer' && scalarType !== 'boolean') {
+      throw new LexdCompileError(
+        `@scalar on "${decl.name}" requires "string", "integer", or "boolean"`,
+      )
+    }
+    if (decl.fields.length > 0 || decl.blocks.length > 0) {
+      throw new LexdCompileError(`@scalar type "${decl.name}" must have an empty body`)
+    }
+    const prim: LexPrimitive = { type: scalarType }
+    applyConstraints(
+      prim as unknown as Record<string, unknown>,
+      decl.attributes.filter((a) => a.name !== 'scalar'),
+      false,
+    )
+    return prim
+  }
   return fieldsToObject(decl.fields, decl.attributes, locals, imports)
 }
 

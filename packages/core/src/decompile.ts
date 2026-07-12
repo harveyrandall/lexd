@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { STDLIB_MAIN_IMPORTS, STDLIB_MODULE_PREFIXES } from './stdlib-imports.js'
 import type {
   LexFieldType,
   LexObject,
@@ -10,6 +11,7 @@ import type {
   LexRecord,
   LexSubscription,
   LexToken,
+  LexPrimitive,
   LexUserType,
   LexXrpcBody,
   LexXrpcError,
@@ -17,11 +19,6 @@ import type {
 } from './lexicon.js'
 
 const INDENT = '  '
-
-/** Known stdlib NSIDs → preferred import binding name (main def). */
-const KNOWN_MAIN_IMPORTS: Record<string, string> = {
-  'com.atproto.repo.strongRef': 'StrongRef',
-}
 
 /** Constraint / field attribute emission order (stable). */
 const FIELD_ATTR_ORDER = [
@@ -52,6 +49,9 @@ interface DecompileCtx {
   locals: Set<string>
   imports: Map<string, ImportNeed>
   refBindings: Map<string, string>
+  /** Inline object fields hoisted to named secondary types (stable insertion order). */
+  hoisted: Map<string, LexObject>
+  inlineCounter: number
 }
 
 function lastSegment(nsid: string): string {
@@ -74,9 +74,26 @@ function preferImportForRef(ref: string): boolean {
   if (ref.startsWith('#')) return false
   if (!ref.includes('.')) return false
   const base = ref.includes('#') ? ref.slice(0, ref.indexOf('#')) : ref
-  if (KNOWN_MAIN_IMPORTS[base]) return true
-  if (base.startsWith('com.atproto.') || base.startsWith('site.standard.')) return true
-  return false
+  if (STDLIB_MAIN_IMPORTS[base]) return true
+  return STDLIB_MODULE_PREFIXES.some((prefix) => base.startsWith(prefix))
+}
+
+function uniqueLocalName(base: string, ctx: DecompileCtx): string {
+  let name = base
+  let n = 2
+  while (ctx.locals.has(name) || ctx.hoisted.has(name) || ctx.imports.has(name)) {
+    name = `${base}${n}`
+    n += 1
+  }
+  return name
+}
+
+function hoistInlineObject(obj: LexObject, suggestedName: string, ctx: DecompileCtx): string {
+  const base = toPascalCase(suggestedName) || 'Inline'
+  const name = uniqueLocalName(base, ctx)
+  ctx.hoisted.set(name, obj)
+  ctx.locals.add(name)
+  return name
 }
 
 function bindingForExternalRef(ref: string, ctx: DecompileCtx): string {
@@ -94,7 +111,7 @@ function bindingForExternalRef(ref: string, ctx: DecompileCtx): string {
     preferred = fragment
   } else {
     from = ref
-    preferred = KNOWN_MAIN_IMPORTS[from] ?? toPascalCase(lastSegment(from))
+    preferred = STDLIB_MAIN_IMPORTS[from] ?? toPascalCase(lastSegment(from))
   }
 
   let name = preferred
@@ -119,6 +136,12 @@ function formatAttrValue(value: unknown): string {
 }
 
 function emitAttr(name: string, value: unknown): string {
+  if (
+    (name === 'knownValues' || name === 'enum' || name === 'accept') &&
+    Array.isArray(value)
+  ) {
+    return `@${name}(${value.map((v) => formatAttrValue(v)).join(', ')})`
+  }
   return `@${name}(${formatAttrValue(value)})`
 }
 
@@ -188,8 +211,10 @@ function emitTypeExpr(field: LexFieldType, ctx: DecompileCtx): string {
       const inner = `union(${refs.join(', ')})`
       return field.closed ? `closed ${inner}` : inner
     }
-    case 'object':
-      return 'unknown'
+    case 'object': {
+      ctx.inlineCounter += 1
+      return hoistInlineObject(field, `Inline${ctx.inlineCounter}`, ctx)
+    }
     default:
       return 'unknown'
   }
@@ -209,8 +234,9 @@ function emitFieldLine(
     return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: ${emitTypeExpr(field, ctx)}`
   }
   if (field.type === 'object') {
+    const typeName = hoistInlineObject(field, name, ctx)
     const attrs = collectFieldAttrs(field, { nullable })
-    return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: unknown`
+    return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: ${typeName}`
   }
   const attrs = collectFieldAttrs(field, { nullable })
   return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: ${emitTypeExpr(field, ctx)}`
@@ -328,6 +354,14 @@ function emitTokenType(name: string, tok: LexToken, indent: string): string[] {
   return lines
 }
 
+function emitScalarType(name: string, prim: LexPrimitive, indent: string): string[] {
+  const lines: string[] = [`${indent}@scalar(${JSON.stringify(prim.type)})`]
+  const attrs = collectFieldAttrs(prim, {})
+  for (const a of attrs) lines.push(`${indent}${a}`)
+  lines.push(`${indent}type ${name} {}`)
+  return lines
+}
+
 function emitSecondaryDef(
   name: string,
   def: LexUserType,
@@ -335,6 +369,9 @@ function emitSecondaryDef(
   indent: string,
 ): string[] {
   if (def.type === 'token') return emitTokenType(name, def, indent)
+  if (def.type === 'string' || def.type === 'integer' || def.type === 'boolean') {
+    return emitScalarType(name, def, indent)
+  }
   if (def.type === 'object') {
     const typeAttrs: string[] = []
     if (def.description) {
@@ -542,6 +579,8 @@ export function decompile(doc: LexiconDoc): string {
     locals,
     imports: new Map(),
     refBindings: new Map(),
+    hoisted: new Map(),
+    inlineCounter: 0,
   }
 
   const bodyLines: string[] = []
@@ -562,6 +601,10 @@ export function decompile(doc: LexiconDoc): string {
       bodyLines.push('')
       bodyLines.push(...emitSecondaryDef(name, doc.defs[name]!, ctx, indent))
     }
+    for (const [hoistName, obj] of ctx.hoisted) {
+      bodyLines.push('')
+      bodyLines.push(...emitNamedObjectType(hoistName, obj, ctx, indent))
+    }
     bodyLines.push('}')
   } else {
     bodyLines.push(`namespace ${doc.id} {`)
@@ -570,6 +613,10 @@ export function decompile(doc: LexiconDoc): string {
       if (i > 0) bodyLines.push('')
       bodyLines.push(...emitSecondaryDef(name, doc.defs[name]!, ctx, indent))
     })
+    for (const [hoistName, obj] of ctx.hoisted) {
+      bodyLines.push('')
+      bodyLines.push(...emitNamedObjectType(hoistName, obj, ctx, indent))
+    }
     bodyLines.push('}')
   }
 
