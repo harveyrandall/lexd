@@ -10,6 +10,7 @@ import {
   emitJson,
   lexdOutputPath,
   nestedOutputPath,
+  validateLexiconDocs,
   type CompiledLexicon,
   type LexiconDoc,
 } from '@lexd/core'
@@ -157,6 +158,99 @@ program
       mkdirSync(dirname(dest), { recursive: true })
       writeFileSync(dest, source, 'utf8')
       console.log(`wrote ${dest}`)
+    }
+  })
+
+program
+  .command('validate')
+  .argument('<patterns...>', 'Glob patterns for .lexd files')
+  .description('Compile and validate lexicon documents for publish readiness')
+  .action(async (patterns: string[]) => {
+    const files = (
+      await Promise.all(patterns.map((p) => glob(p, { nodir: true, absolute: true })))
+    )
+      .flat()
+      .filter((f) => f.endsWith('.lexd'))
+      .sort()
+
+    if (files.length === 0) {
+      console.error('No .lexd files matched')
+      process.exitCode = 1
+      return
+    }
+
+    let compiled: CompiledLexicon[]
+    try {
+      compiled = compileFiles(files)
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err)
+      process.exitCode = 1
+      return
+    }
+
+    const errors = validateLexiconDocs(compiled.map((c) => c.doc))
+    if (errors.length > 0) {
+      for (const err of errors) console.error(err)
+      process.exitCode = 1
+      return
+    }
+
+    console.log(`validated ${compiled.length} lexicon(s)`)
+  })
+
+program
+  .command('publish')
+  .argument('<patterns...>', 'Glob patterns for .lexd files')
+  .option('-o, --out <dir>', 'Output directory for lexicon JSON', 'lexicons')
+  .option('--layout <layout>', 'Output layout: flat | nested', 'flat')
+  .description('Validate, compile, and write lexicon JSON for Atmosphere / PDS publish')
+  .action(async (patterns: string[], opts: { out: string; layout: string }) => {
+    if (opts.layout !== 'flat' && opts.layout !== 'nested') {
+      console.error(`Invalid --layout "${opts.layout}" (use flat or nested)`)
+      process.exitCode = 1
+      return
+    }
+
+    const files = (
+      await Promise.all(patterns.map((p) => glob(p, { nodir: true, absolute: true })))
+    )
+      .flat()
+      .filter((f) => f.endsWith('.lexd'))
+      .sort()
+
+    if (files.length === 0) {
+      console.error('No .lexd files matched')
+      process.exitCode = 1
+      return
+    }
+
+    let compiled: CompiledLexicon[]
+    try {
+      compiled = compileFiles(files)
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : err)
+      process.exitCode = 1
+      return
+    }
+
+    const errors = validateLexiconDocs(compiled.map((c) => c.doc))
+    if (errors.length > 0) {
+      for (const err of errors) console.error(err)
+      process.exitCode = 1
+      return
+    }
+
+    const outDir = resolve(opts.out)
+    const layout = opts.layout as 'flat' | 'nested'
+    mkdirSync(outDir, { recursive: true })
+
+    for (const item of compiled) {
+      const rel =
+        layout === 'nested' ? nestedOutputPath(item.id) : item.filename
+      const dest = join(outDir, rel)
+      mkdirSync(dirname(dest), { recursive: true })
+      writeFileSync(dest, emitJson(item.doc), 'utf8')
+      console.log(`published ${dest}`)
     }
   })
 
