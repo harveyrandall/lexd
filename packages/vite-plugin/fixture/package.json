@@ -1,0 +1,12 @@
+{
+  "name": "@lexd/vite-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@lexd/vite-plugin": "workspace:*",
+    "vite": "^6.3.5"
+  }
+}
