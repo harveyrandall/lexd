@@ -1,9 +1,9 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import type { Plugin } from 'vite'
 import { globSync } from 'glob'
 import {
-  compile,
+  compileFiles,
   emitJson,
   nestedOutputPath,
   type CompiledLexicon,
@@ -21,13 +21,14 @@ export interface LexdVitePluginOptions {
    * (as a JSON ESM module). Default: true
    */
   virtual?: boolean
+  /** Resolve @lexd/stdlib-* for imports. Default: true */
+  includeStdlib?: boolean
 }
 
 function matchPatterns(root: string, include: string | string[]): string[] {
   const patterns = Array.isArray(include) ? include : [include]
   return patterns
     .flatMap((p) => {
-      // Resolve non-glob prefix so patterns like ../examples/*.lexd work
       const absolute = p.startsWith('/') ? p : resolve(root, p)
       return globSync(absolute, { nodir: true, absolute: true })
     })
@@ -45,21 +46,20 @@ function writeCompiled(items: CompiledLexicon[], outDir: string, layout: 'flat' 
   }
 }
 
-function compilePath(file: string): CompiledLexicon[] {
-  const source = readFileSync(file, 'utf8')
-  return compile(source, file)
-}
-
 export function lexdPlugin(options: LexdVitePluginOptions = {}): Plugin {
   const include = options.include ?? '**/*.lexd'
   const layout = options.layout ?? 'flat'
   const virtual = options.virtual ?? true
+  const includeStdlib = options.includeStdlib !== false
   let root = process.cwd()
   let outDir = resolve(root, options.outDir ?? 'lexicons')
 
+  const compilePaths = (files: string[]) =>
+    compileFiles(files, { cwd: root, includeStdlib })
+
   const compileAll = () => {
     const files = matchPatterns(root, include)
-    const items = files.flatMap((f) => compilePath(f))
+    const items = compilePaths(files)
     writeCompiled(items, outDir, layout)
     return items
   }
@@ -119,7 +119,7 @@ export function lexdPlugin(options: LexdVitePluginOptions = {}): Plugin {
     load(id) {
       if (!virtual || !id.startsWith('\0lexd:')) return null
       const file = id.slice('\0lexd:'.length)
-      const items = compilePath(file)
+      const items = compilePaths([file])
       const payload = items.length === 1 ? items[0]!.doc : items.map((i) => i.doc)
       return `export default ${JSON.stringify(payload)}`
     },

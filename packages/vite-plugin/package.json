@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@lexd/core": "workspace:*",
+    "@lexd/stdlib-atproto": "workspace:*",
+    "@lexd/stdlib-standard": "workspace:*",
     "glob": "^11.0.2"
   },
   "peerDependencies": {

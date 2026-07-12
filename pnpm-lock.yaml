@@ -17,6 +17,12 @@ importers:
       '@lexd/core':
         specifier: workspace:*
         version: link:../core
+      '@lexd/stdlib-atproto':
+        specifier: workspace:*
+        version: link:../stdlib-atproto
+      '@lexd/stdlib-standard':
+        specifier: workspace:*
+        version: link:../stdlib-standard
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -40,6 +46,12 @@ importers:
         specifier: ^11.0.3
         version: 11.2.0
     devDependencies:
+      '@lexd/stdlib-atproto':
+        specifier: workspace:*
+        version: link:../stdlib-atproto
+      '@lexd/stdlib-standard':
+        specifier: workspace:*
+        version: link:../stdlib-standard
       '@types/node':
         specifier: ^22.15.21
         version: 22.20.1
@@ -50,11 +62,21 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  packages/stdlib-atproto: {}
+
+  packages/stdlib-standard: {}
+
   packages/vite-plugin:
     dependencies:
       '@lexd/core':
         specifier: workspace:*
         version: link:../core
+      '@lexd/stdlib-atproto':
+        specifier: workspace:*
+        version: link:../stdlib-atproto
+      '@lexd/stdlib-standard':
+        specifier: workspace:*
+        version: link:../stdlib-standard
       glob:
         specifier: ^11.0.2
         version: 11.1.0

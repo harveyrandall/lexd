@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@lexd/core": "workspace:*",
+    "@lexd/stdlib-atproto": "workspace:*",
+    "@lexd/stdlib-standard": "workspace:*",
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",
     "glob": "^11.0.2"

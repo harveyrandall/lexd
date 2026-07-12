@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm -r --filter=!@lexd/vite-fixture run build",
     "test": "pnpm --filter @lexd/core test",
-    "compile:examples": "node packages/cli/dist/cli.js compile \"examples/**/*.lexd\" -o lexicons",
+    "compile:examples": "node packages/cli/dist/cli.js compile \"examples/**/*.lexd\" \"packages/stdlib-atproto/src/**/*.lexd\" \"packages/stdlib-standard/src/**/*.lexd\" -o lexicons",
     "lexd": "node packages/cli/dist/cli.js"
   },
   "devDependencies": {
