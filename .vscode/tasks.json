@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-lexd-extension",
+      "type": "shell",
+      "command": "pnpm --filter @lexd/language-server build && pnpm --filter vscode-lexd build",
+      "problemMatcher": "$tsc",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}

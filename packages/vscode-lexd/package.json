@@ -1,0 +1,53 @@
+{
+  "name": "vscode-lexd",
+  "displayName": "Lexd (AT Proto Lexicon DSL)",
+  "description": "Language support for .lexd — Lexicon DSL for AT Protocol",
+  "version": "0.1.0",
+  "publisher": "lexd",
+  "private": true,
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages", "Linters"],
+  "activationEvents": [
+    "onLanguage:lexd"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "lexd",
+        "aliases": ["Lexd", "lexd", "AT Proto Lexicon DSL"],
+        "extensions": [".lexd"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lexd",
+        "scopeName": "source.lexd",
+        "path": "./syntaxes/lexd.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "vscode:prepublish": "pnpm run build"
+  },
+  "files": [
+    "dist",
+    "syntaxes",
+    "language-configuration.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@lexd/language-server": "workspace:*",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.8.3"
+  }
+}

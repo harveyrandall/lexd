@@ -9,7 +9,46 @@ import { ModuleRegistry } from './registry.js'
 import type { CompiledLexicon, LexiconDoc } from './lexicon.js'
 import type { LexdFile } from './ast.js'
 
-export type { LexdFile } from './ast.js'
+export type {
+  LexdFile,
+  SourceSpan,
+  TypeDecl,
+  Field,
+  ImportDecl,
+  TypeExpr,
+  Attribute,
+  NamespaceDecl,
+  TypeBlock,
+  PrimitiveName,
+} from './ast.js'
+export {
+  PRIMITIVES,
+  PRIMARY_ATTRS,
+  SECTION_NAMES,
+} from './ast.js'
+
+/** Known constraint / meta attribute names for editor completion. */
+export const CONSTRAINT_ATTRS = [
+  'description',
+  'format',
+  'maxLength',
+  'minLength',
+  'maxGraphemes',
+  'minGraphemes',
+  'minimum',
+  'maximum',
+  'maxSize',
+  'accept',
+  'default',
+  'const',
+  'enum',
+  'knownValues',
+  'nullable',
+  'title',
+  'detail',
+  'token',
+] as const
+
 export type { CompiledLexicon, LexiconDoc } from './lexicon.js'
 export { LexdSyntaxError } from './parser.js'
 export { LexdCompileError } from './errors.js'
@@ -18,6 +57,7 @@ export { decompile, decompileFile } from './decompile.js'
 export { parseLexd } from './parser.js'
 export { lower } from './lower.js'
 export { ModuleRegistry, buildImportMap } from './registry.js'
+export type { ModuleExport } from './registry.js'
 
 const require = createRequire(import.meta.url)
 
