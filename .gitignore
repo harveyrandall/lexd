@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-fixture/
+*.tsbuildinfo
+.DS_Store
+lexicons/
+coverage/
+.vite/
