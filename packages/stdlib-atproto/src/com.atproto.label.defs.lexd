@@ -1,0 +1,13 @@
+namespace com.atproto.label.defs {
+  type selfLabel {
+    @description("The short string name of the value or label.")
+    @maxGraphemes(128)
+    @maxLength(128)
+    val: string
+  }
+
+  type selfLabels {
+    @description("Metadata tag on an atproto record, indicating user (client)-defined labels about the content.")
+    values: selfLabel[]
+  }
+}

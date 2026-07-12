@@ -1,0 +1,42 @@
+namespace com.atproto.repo {
+  @procedure
+  @description("Create a single new repository record. Requires auth, implemented by PDS.")
+  type createRecord {
+    input {
+      encoding: "application/json"
+      schema {
+        @format("at-identifier")
+        @description("The handle or DID of the repo (aka, current account).")
+        repo: string
+
+        @format("nsid")
+        @description("The NSID of the record collection.")
+        collection: string
+
+        @format("record-key")
+        @maxLength(512)
+        rkey?: string
+
+        @description("Can be set to false to skip Lexicon schema validation of record data.")
+        validate?: boolean
+
+        @description("The record itself. Must contain a $type field.")
+        record: unknown
+
+        @format("cid")
+        swapCommit?: string
+      }
+    }
+    output {
+      encoding: "application/json"
+      schema {
+        @format("at-uri") uri: string
+        @format("cid") cid: string
+        @knownValues(["valid", "unknown"]) validationStatus?: string
+      }
+    }
+    errors {
+      InvalidSwap: "Indicates that swapCommit didn't match current repo commit."
+    }
+  }
+}

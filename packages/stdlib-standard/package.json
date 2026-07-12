@@ -1,0 +1,14 @@
+{
+  "name": "@lexd/stdlib-standard",
+  "version": "0.1.0",
+  "description": "Curated site.standard.* Lexicon DSL sources for lexd",
+  "type": "module",
+  "lexd": "src",
+  "files": ["src"],
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node -e \"process.exit(0)\""
+  }
+}

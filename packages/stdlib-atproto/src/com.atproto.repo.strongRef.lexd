@@ -1,0 +1,8 @@
+namespace com.atproto.repo {
+  @object
+  @description("A URI with a content-hash fingerprint.")
+  type strongRef {
+    @format("at-uri") uri: string
+    @format("cid") cid: string
+  }
+}

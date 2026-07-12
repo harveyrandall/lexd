@@ -1,0 +1,34 @@
+namespace com.atproto.repo {
+  @query
+  @description("Get a single record from a repository. Does not require auth.")
+  type getRecord {
+    params {
+      @format("at-identifier")
+      @description("The handle or DID of the repo.")
+      repo: string
+
+      @format("nsid")
+      @description("The NSID of the record collection.")
+      collection: string
+
+      @format("record-key")
+      @description("The Record Key.")
+      rkey: string
+
+      @format("cid")
+      @description("The CID of the version of the record. If not specified, then return the most recent version.")
+      cid?: string
+    }
+    output {
+      encoding: "application/json"
+      schema {
+        @format("at-uri") uri: string
+        @format("cid") cid?: string
+        value: unknown
+      }
+    }
+    errors {
+      RecordNotFound
+    }
+  }
+}
