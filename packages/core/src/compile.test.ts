@@ -217,7 +217,12 @@ describe('xrpc and permission-set', () => {
 
   it('compiles createRecord procedure', () => {
     const path = join(repoRoot, 'packages/stdlib-atproto/src/com.atproto.repo.createRecord.lexd')
-    const [result] = compileFiles([path], { cwd: repoRoot, includeStdlib: false })
+    const defsPath = join(repoRoot, 'packages/stdlib-atproto/src/com.atproto.repo.defs.lexd')
+    const [result] = compileFiles([path], {
+      cwd: repoRoot,
+      includeStdlib: false,
+      dependencyPaths: [defsPath],
+    })
     assert.ok(result)
     const main = result.doc.defs.main
     assert.ok(main && main.type === 'procedure')

@@ -1,3 +1,5 @@
+import { commitMeta } from "com.atproto.repo.defs"
+
 namespace com.atproto.repo {
   @procedure
   @description("Create a single new repository record. Requires auth, implemented by PDS.")
@@ -5,26 +7,12 @@ namespace com.atproto.repo {
     input {
       encoding: "application/json"
       schema {
-        @format("at-identifier")
-        @description("The handle or DID of the repo (aka, current account).")
-        repo: string
-
-        @format("nsid")
-        @description("The NSID of the record collection.")
-        collection: string
-
-        @format("record-key")
-        @maxLength(512)
-        rkey?: string
-
-        @description("Can be set to false to skip Lexicon schema validation of record data.")
-        validate?: boolean
-
-        @description("The record itself. Must contain a $type field.")
-        record: unknown
-
-        @format("cid")
-        swapCommit?: string
+        @description("The handle or DID of the repo (aka, current account).") @format("at-identifier") repo: string
+        @description("The NSID of the record collection.") @format("nsid") collection: string
+        @description("The Record Key.") @format("record-key") @maxLength(512) rkey?: string
+        @description("Can be set to 'false' to skip Lexicon schema validation of record data, 'true' to require it, or leave unset to validate only for known Lexicons.") validate?: boolean
+        @description("The record itself. Must contain a $type field.") record: unknown
+        @description("Compare and swap with the previous commit by CID.") @format("cid") swapCommit?: string
       }
     }
     output {
@@ -32,11 +20,12 @@ namespace com.atproto.repo {
       schema {
         @format("at-uri") uri: string
         @format("cid") cid: string
-        @knownValues(["valid", "unknown"]) validationStatus?: string
+        commit?: commitMeta
+        @knownValues("valid", "unknown") validationStatus?: string
       }
     }
     errors {
-      InvalidSwap: "Indicates that swapCommit didn't match current repo commit."
+      InvalidSwap: "Indicates that 'swapCommit' didn't match current repo commit."
     }
   }
 }

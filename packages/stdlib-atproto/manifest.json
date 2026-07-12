@@ -1,0 +1,16 @@
+{
+  "source": {
+    "baseUrl": "https://raw.githubusercontent.com/bluesky-social/atproto/main/lexicons"
+  },
+  "lexicons": [
+    "com/atproto/repo/strongRef.json",
+    "com/atproto/repo/getRecord.json",
+    "com/atproto/repo/createRecord.json",
+    "com/atproto/repo/listRecords.json",
+    "com/atproto/repo/applyWrites.json",
+    "com/atproto/repo/defs.json",
+    "com/atproto/label/defs.json",
+    "com/atproto/sync/subscribeRepos.json",
+    "com/atproto/server/describeServer.json"
+  ]
+}

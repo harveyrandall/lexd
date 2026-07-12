@@ -240,12 +240,18 @@ pnpm lexd decompile lexicons/app.bsky.actor.profile.json -o recovered
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `-o, --out <dir>` | `lexicons` (compile) / `lexd-out` (decompile) | Output directory |
-| `--layout flat\|nested` | `flat` | `id.json` vs `id/path.json` (compile only) |
+| `--layout flat\|nested` | `flat` | `id.json` vs `id/path.json` (compile and decompile) |
 | `-w, --watch` | off | Recompile on change |
 
 `compile` also loads `@lexd/stdlib-atproto` and `@lexd/stdlib-standard` from the workspace/node_modules so `import { … } from "com.atproto…"` resolves without listing those files on the command line. Stdlib lexicons are emitted when you include their sources in the glob (or compile the stdlib package paths explicitly).
 
-`decompile` writes one `.lexd` file per lexicon JSON using the flat NSID name (e.g. `app.bsky.actor.profile.lexd`). Known stdlib refs such as `com.atproto.repo.strongRef` become named imports (`StrongRef`) instead of inlined full NSIDs.
+`decompile` writes one `.lexd` file per lexicon JSON. Use `--layout nested` for `com/atproto/repo/getRecord.lexd`-style paths. Known stdlib refs such as `com.atproto.repo.strongRef` become named imports (`StrongRef`) instead of inlined full NSIDs. Inline JSON object fields are hoisted to named secondary types.
+
+Sync stdlib from [bluesky-social/atproto](https://github.com/bluesky-social/atproto) lexicons:
+
+```bash
+pnpm stdlib:bootstrap
+```
 
 ---
 
@@ -337,5 +343,5 @@ Open `examples/feed-post.lexd` to try diagnostics, `@` completion, and go-to-def
 
 ## Roadmap (short)
 
-1. Polish decompiler (inline object fields, broader import preference, `--layout`)
+1. Language: inline object field syntax, richer imports, `@atproto/lex` hooks
 2. Polish LSP (semantic tokens, compile-error spans, richer import navigation, VSIX bundling)
