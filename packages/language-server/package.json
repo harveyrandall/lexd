@@ -1,0 +1,35 @@
+{
+  "name": "@lexd/language-server",
+  "version": "0.1.0",
+  "description": "Language server for the AT Proto Lexicon DSL (.lexd)",
+  "type": "module",
+  "bin": {
+    "lexd-lsp": "./dist/server.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/server.js",
+    "test": "node --import tsx --test src/**/*.test.ts",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@lexd/core": "workspace:*",
+    "@lexd/stdlib-atproto": "workspace:*",
+    "@lexd/stdlib-standard": "workspace:*",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}

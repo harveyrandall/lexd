@@ -5,9 +5,10 @@
   "packageManager": "pnpm@10.27.0",
   "scripts": {
     "build": "pnpm -r --filter=!@lexd/vite-fixture run build",
-    "test": "pnpm --filter @lexd/core test",
+    "test": "pnpm --filter @lexd/core test && pnpm --filter @lexd/language-server test",
     "compile:examples": "node packages/cli/dist/cli.js compile \"examples/**/*.lexd\" \"packages/stdlib-atproto/src/**/*.lexd\" \"packages/stdlib-standard/src/**/*.lexd\" -o lexicons",
-    "lexd": "node packages/cli/dist/cli.js"
+    "lexd": "node packages/cli/dist/cli.js",
+    "lexd-lsp": "node packages/language-server/dist/server.js"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
