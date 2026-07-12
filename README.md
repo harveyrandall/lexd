@@ -237,7 +237,7 @@ pnpm lexd decompile lexicons/app.bsky.actor.profile.json -o recovered
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
-| `-o, --out <dir>` | `lexicons` (compile) / required (decompile) | Output directory |
+| `-o, --out <dir>` | `lexicons` (compile) / `lexd-out` (decompile) | Output directory |
 | `--layout flat\|nested` | `flat` | `id.json` vs `id/path.json` (compile only) |
 | `-w, --watch` | off | Recompile on change |
 
