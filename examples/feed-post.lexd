@@ -1,0 +1,19 @@
+namespace app.bsky.feed {
+  @record("tid")
+  type post {
+    @maxGraphemes(300) @maxLength(3000) text: string
+    @format("datetime") createdAt: string
+    reply?: Reply
+    langs?: string[]
+  }
+
+  type Reply {
+    root: StrongRef
+    parent: StrongRef
+  }
+
+  type StrongRef {
+    @format("at-uri") uri: string
+    @format("cid") cid: string
+  }
+}

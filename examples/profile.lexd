@@ -1,0 +1,7 @@
+namespace app.bsky.actor {
+  @record("self")
+  type profile {
+    @maxGraphemes(64) displayName?: string
+    @maxGraphemes(256) description?: string
+  }
+}
