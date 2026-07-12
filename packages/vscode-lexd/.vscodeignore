@@ -1,7 +1,9 @@
 .vscode/**
 src/**
+scripts/**
 tsconfig.json
 **/*.ts
 **/*.map
 node_modules/**
-.gitignore
+package-lock.json
+pnpm-lock.yaml

@@ -79,7 +79,10 @@ function walkLexdFiles(dir: string, out: string[] = []): string[] {
 }
 
 /** Locate bundled stdlib .lexd files via package exports / package root. */
-export function discoverStdlibLexdFiles(fromDir: string = process.cwd()): string[] {
+export function discoverStdlibLexdFiles(
+  fromDir: string = process.cwd(),
+  extraRoots: string[] = [],
+): string[] {
   const coreDir = dirname(fileURLToPath(import.meta.url))
   const searchPaths = [
     fromDir,
@@ -98,6 +101,9 @@ export function discoverStdlibLexdFiles(fromDir: string = process.cwd()): string
     } catch {
       // package not installed — skip
     }
+  }
+  for (const root of extraRoots) {
+    found.push(...walkLexdFiles(root))
   }
   return [...new Set(found)].sort()
 }

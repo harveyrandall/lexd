@@ -334,6 +334,29 @@ Open `examples/feed-post.lexd` to try diagnostics, `@` completion, and go-to-def
 
 ---
 
+## Publishing
+
+### npm packages
+
+Publishable workspace packages (`@lexd/*`) include MIT license metadata, `publishConfig.access: public`, and a `prepack` build step. From the repo root after bumping versions:
+
+```bash
+pnpm pack:packages    # dry-run tarballs in dependency order
+pnpm publish:packages # core → stdlib → cli / lsp / vite-plugin
+```
+
+`vscode-lexd` is private and not published to npm; ship it as a VSIX instead.
+
+### VSIX
+
+```bash
+pnpm package:vsix
+```
+
+CI runs the same command on every push/PR to verify the bundle builds.
+
+---
+
 ## Path to the full lexicon surface
 
 | Milestone | Status |
@@ -342,8 +365,9 @@ Open `examples/feed-post.lexd` to try diagnostics, `@` completion, and go-to-def
 | `@query` / `@procedure` / `@subscription` / `@permissionSet`, tokens, blob/nullable/closed unions | Done (M2) |
 | JSON → `.lexd` decompiler | Done (M3) |
 | LSP / VS Code extension | Done (M4) |
+| VSIX bundling + npm publish metadata | Done (M9) |
 
 ## Roadmap (short)
 
-1. Language: inline object field syntax, richer imports, `@atproto/lex` hooks
-2. Polish LSP (semantic tokens, compile-error spans, richer import navigation, VSIX bundling)
+1. Language: richer imports, `@atproto/lex` codegen hooks
+2. Polish LSP (semantic tokens, compile-error spans, richer import navigation)

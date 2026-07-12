@@ -2,6 +2,15 @@
   "name": "@lexd/cli",
   "version": "0.1.0",
   "description": "CLI for compiling and decompiling AT Proto Lexicon DSL (.lexd)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harveyrandall/lexd.git",
+    "directory": "packages/cli"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "lexd": "./dist/cli.js"
@@ -10,6 +19,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "prepack": "pnpm run build",
     "dev": "tsc -p tsconfig.json --watch"
   },
   "dependencies": {

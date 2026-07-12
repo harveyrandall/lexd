@@ -24,3 +24,4 @@ jobs:
       - run: pnpm build
       - run: pnpm test
       - run: pnpm compile:examples
+      - run: pnpm package:vsix

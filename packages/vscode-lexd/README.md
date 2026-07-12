@@ -6,7 +6,8 @@ Provides:
 
 - Syntax highlighting (TextMate grammar)
 - Language configuration (`//` / `/* */` comments, brackets)
-- Language server features via `@lexd/language-server`: diagnostics, hover, completion, go-to-definition
+- Language server features via a bundled LSP: diagnostics, hover, completion, go-to-definition
+- Bundled `@lexd/stdlib-atproto` and `@lexd/stdlib-standard` sources for import resolution offline
 
 ## Prerequisites
 
@@ -28,18 +29,25 @@ This builds `@lexd/core`, `@lexd/language-server`, and this extension.
 3. Press **F5** (or start debugging). A new Extension Development Host window opens with `vscode-lexd` loaded.
 4. Open any `examples/*.lexd` file to try diagnostics, hover, completion (`@`), and go-to-definition.
 
-### Option B — Install a VSIX
+In monorepo dev mode the extension loads the sibling `@lexd/language-server` build (not the bundled server). Stdlib is resolved from workspace `packages/stdlib-*` via the LSP workspace index.
+
+### Option B — Install a VSIX (self-contained)
 
 ```bash
-# From the monorepo root (requires @vscode/vsce)
-pnpm --filter vscode-lexd build
-cd packages/vscode-lexd
-npx @vscode/vsce package --no-dependencies
-code --install-extension ./vscode-lexd-0.1.0.vsix
-# or: cursor --install-extension ./vscode-lexd-0.1.0.vsix
+# From the monorepo root
+pnpm package:vsix
+code --install-extension packages/vscode-lexd/vscode-lexd-0.1.0.vsix
+# or: cursor --install-extension packages/vscode-lexd/vscode-lexd-0.1.0.vsix
 ```
 
-`--no-dependencies` keeps the package small; the language server is bundled via the workspace dependency path when developing from source. For a self-contained VSIX you may want to vendor `dist/` of `@lexd/language-server` and `@lexd/core` — for local use, Option A or C is simpler.
+`pnpm package:vsix` runs `vscode:prepublish`, which:
+
+1. Builds `@lexd/core` and `@lexd/language-server`
+2. Bundles the language server + core into `dist/server.bundle.js` (esbuild)
+3. Bundles the extension host into `dist/extension.js`
+4. Copies stdlib `.lexd` sources into `stdlib/{atproto,standard}`
+
+The resulting VSIX has no runtime dependency on the monorepo or npm packages.
 
 ### Option C — Symlink into extensions folder
 
