@@ -312,7 +312,7 @@ pnpm build
 
 Then either:
 
-1. **F5** — use the “Launch Lexd Extension” config in `.vscode/launch.json`, or
+1. **F5** — use the “Lexd Extension” config in `.vscode/launch.json`, or
 2. **Install the folder** — `code --install-extension ./packages/vscode-lexd` (or `cursor --install-extension …`), or
 3. **Package a VSIX** — see [`packages/vscode-lexd/README.md`](packages/vscode-lexd/README.md).
 
