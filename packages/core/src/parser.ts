@@ -370,6 +370,13 @@ class LexdParser extends CstParser {
           this.SUBRULE(this.typeAtom)
         },
       },
+      {
+        ALT: () => {
+          this.CONSUME(LCurly)
+          this.MANY3(() => this.SUBRULE(this.field))
+          this.CONSUME(RCurly)
+        },
+      },
     ])
   })
 
@@ -564,6 +571,13 @@ function buildTypeExprInner(cst: CstNode): TypeExpr {
       closed: Boolean(cst.children['ClosedKw']),
       span: tokenSpan(cst.children['UnionKw']![0] as IToken),
     }
+  }
+
+  if (cst.children['LCurly']) {
+    const fields =
+      (cst.children['field'] as CstNode[] | undefined)?.map(buildField) ?? []
+    const lcurly = cst.children['LCurly']![0] as IToken
+    return { kind: 'inline', fields, span: tokenSpan(lcurly) }
   }
 
   return buildTypeAtom(cst.children['typeAtom']![0] as CstNode)

@@ -195,6 +195,10 @@ function typeExprToLex(
     return u
   }
 
+  if (expr.kind === 'inline') {
+    return fieldsToObject(expr.fields, attributes, locals, imports)
+  }
+
   if (expr.kind === 'ref') {
     const ref: LexFieldType = {
       type: 'ref',
