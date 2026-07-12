@@ -6,8 +6,20 @@ import {
 import {
   allTokens,
   NamespaceKw,
+  ImportKw,
+  FromKw,
+  AsKw,
   TypeKw,
   UnionKw,
+  ClosedKw,
+  ParamsKw,
+  InputKw,
+  OutputKw,
+  MessageKw,
+  ErrorsKw,
+  EncodingKw,
+  SchemaKw,
+  PermissionsKw,
   LCurly,
   RCurly,
   LParen,
@@ -29,15 +41,23 @@ import {
 import type {
   Attribute,
   AttrValue,
+  ErrorDecl,
   Field,
+  ImportDecl,
+  IoBlock,
   LexdFile,
+  MessageBlock,
   NamespaceDecl,
+  PermissionEntry,
+  PermissionsBlock,
   PrimitiveName,
+  SchemaBody,
   SourceSpan,
+  TypeBlock,
   TypeDecl,
   TypeExpr,
 } from './ast.js'
-import { PRIMITIVES } from './ast.js'
+import { PRIMITIVES, PRIMARY_ATTRS } from './ast.js'
 
 class LexdParser extends CstParser {
   constructor() {
@@ -46,7 +66,44 @@ class LexdParser extends CstParser {
   }
 
   public file = this.RULE('file', () => {
-    this.MANY(() => this.SUBRULE(this.namespaceDecl))
+    this.MANY(() => this.SUBRULE(this.importDecl))
+    this.MANY2(() => this.SUBRULE(this.namespaceDecl))
+  })
+
+  private importDecl = this.RULE('importDecl', () => {
+    this.CONSUME(ImportKw)
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(LCurly)
+          this.SUBRULE(this.importBinding)
+          this.MANY(() => {
+            this.CONSUME(Comma)
+            this.SUBRULE2(this.importBinding)
+          })
+          this.CONSUME(RCurly)
+          this.CONSUME(FromKw)
+          this.CONSUME(StringLiteral)
+        },
+      },
+      {
+        ALT: () => {
+          this.SUBRULE(this.nsid)
+          this.OPTION(() => {
+            this.CONSUME(AsKw)
+            this.CONSUME(Identifier)
+          })
+        },
+      },
+    ])
+  })
+
+  private importBinding = this.RULE('importBinding', () => {
+    this.CONSUME(Identifier)
+    this.OPTION(() => {
+      this.CONSUME(AsKw)
+      this.CONSUME2(Identifier)
+    })
   })
 
   private namespaceDecl = this.RULE('namespaceDecl', () => {
@@ -70,8 +127,139 @@ class LexdParser extends CstParser {
     this.CONSUME(TypeKw)
     this.CONSUME(Identifier)
     this.CONSUME(LCurly)
-    this.MANY2(() => this.SUBRULE(this.field))
+    this.MANY2(() => this.SUBRULE(this.typeMember))
     this.CONSUME(RCurly)
+  })
+
+  private typeMember = this.RULE('typeMember', () => {
+    this.OR([
+      { ALT: () => this.SUBRULE(this.paramsBlock) },
+      { ALT: () => this.SUBRULE(this.inputBlock) },
+      { ALT: () => this.SUBRULE(this.outputBlock) },
+      { ALT: () => this.SUBRULE(this.messageBlock) },
+      { ALT: () => this.SUBRULE(this.errorsBlock) },
+      { ALT: () => this.SUBRULE(this.permissionsBlock) },
+      { ALT: () => this.SUBRULE(this.field) },
+    ])
+  })
+
+  private paramsBlock = this.RULE('paramsBlock', () => {
+    this.CONSUME(ParamsKw)
+    this.CONSUME(LCurly)
+    this.MANY(() => this.SUBRULE(this.field))
+    this.CONSUME(RCurly)
+  })
+
+  private inputBlock = this.RULE('inputBlock', () => {
+    this.CONSUME(InputKw)
+    this.CONSUME(LCurly)
+    this.MANY(() => this.SUBRULE(this.ioMember))
+    this.CONSUME(RCurly)
+  })
+
+  private outputBlock = this.RULE('outputBlock', () => {
+    this.CONSUME(OutputKw)
+    this.CONSUME(LCurly)
+    this.MANY(() => this.SUBRULE(this.ioMember))
+    this.CONSUME(RCurly)
+  })
+
+  private ioMember = this.RULE('ioMember', () => {
+    this.OR([
+      {
+        ALT: () => {
+          this.CONSUME(EncodingKw)
+          this.CONSUME(Colon)
+          this.CONSUME(StringLiteral)
+        },
+      },
+      {
+        ALT: () => {
+          this.CONSUME(SchemaKw)
+          this.OR2([
+            {
+              ALT: () => {
+                this.CONSUME2(Colon)
+                this.SUBRULE(this.typeExpr)
+              },
+            },
+            {
+              ALT: () => {
+                this.CONSUME(LCurly)
+                this.MANY(() => this.SUBRULE(this.field))
+                this.CONSUME(RCurly)
+              },
+            },
+          ])
+        },
+      },
+    ])
+  })
+
+  private messageBlock = this.RULE('messageBlock', () => {
+    this.CONSUME(MessageKw)
+    this.CONSUME(LCurly)
+    this.CONSUME(SchemaKw)
+    this.CONSUME(Colon)
+    this.SUBRULE(this.typeExpr)
+    this.CONSUME(RCurly)
+  })
+
+  private errorsBlock = this.RULE('errorsBlock', () => {
+    this.CONSUME(ErrorsKw)
+    this.CONSUME(LCurly)
+    this.OPTION(() => {
+      this.SUBRULE(this.errorItem)
+      this.MANY(() => {
+        this.OPTION2(() => this.CONSUME(Comma))
+        this.SUBRULE2(this.errorItem)
+      })
+    })
+    this.CONSUME(RCurly)
+  })
+
+  private errorItem = this.RULE('errorItem', () => {
+    this.CONSUME(Identifier)
+    this.OPTION(() => {
+      this.CONSUME(Colon)
+      this.CONSUME(StringLiteral)
+    })
+  })
+
+  private permissionsBlock = this.RULE('permissionsBlock', () => {
+    this.CONSUME(PermissionsKw)
+    this.CONSUME(LCurly)
+    this.MANY(() => this.SUBRULE(this.permissionEntry))
+    this.CONSUME(RCurly)
+  })
+
+  private permissionEntry = this.RULE('permissionEntry', () => {
+    this.CONSUME(Identifier)
+    this.CONSUME(LCurly)
+    this.MANY(() => this.SUBRULE(this.permissionProp))
+    this.CONSUME(RCurly)
+  })
+
+  private permissionProp = this.RULE('permissionProp', () => {
+    this.CONSUME(Identifier)
+    this.CONSUME(Colon)
+    this.OR([
+      { ALT: () => this.CONSUME(StringLiteral) },
+      { ALT: () => this.CONSUME(BooleanLiteral) },
+      {
+        ALT: () => {
+          this.CONSUME(LBracket)
+          this.OPTION(() => {
+            this.CONSUME2(StringLiteral)
+            this.MANY(() => {
+              this.CONSUME(Comma)
+              this.CONSUME3(StringLiteral)
+            })
+          })
+          this.CONSUME(RBracket)
+        },
+      },
+    ])
   })
 
   private attribute = this.RULE('attribute', () => {
@@ -123,6 +311,7 @@ class LexdParser extends CstParser {
     this.OR([
       {
         ALT: () => {
+          this.OPTION(() => this.CONSUME(ClosedKw))
           this.CONSUME(UnionKw)
           this.CONSUME(LParen)
           this.SUBRULE(this.typeExpr)
@@ -136,7 +325,7 @@ class LexdParser extends CstParser {
       {
         ALT: () => {
           this.SUBRULE(this.typeAtom)
-          this.OPTION(() => {
+          this.OPTION2(() => {
             this.CONSUME(LBracket)
             this.CONSUME(RBracket)
           })
@@ -232,7 +421,6 @@ function parseAttrValue(cst: CstNode): AttrValue {
   if (children['BooleanLiteral']) {
     return (children['BooleanLiteral'][0] as IToken).image === 'true'
   }
-  // array
   const nested = children['attrArg'] as CstNode[] | undefined
   if (nested) {
     return nested.map(parseAttrValue) as Array<string | number | boolean>
@@ -252,7 +440,6 @@ function buildAttribute(cst: CstNode): Attribute {
 
 function buildNsid(cst: CstNode): { name: string; span: SourceSpan } {
   const ids = cst.children['Identifier'] as IToken[]
-  const dots = (cst.children['Dot'] as IToken[] | undefined) ?? []
   const name = ids.map((t) => t.image).join('.')
   const first = ids[0]!
   const last = ids[ids.length - 1]!
@@ -262,8 +449,39 @@ function buildNsid(cst: CstNode): { name: string; span: SourceSpan } {
   }
 }
 
+function buildImportBinding(cst: CstNode): { imported: string; local: string } {
+  const ids = cst.children['Identifier'] as IToken[]
+  const imported = ids[0]!.image
+  const local = ids[1]?.image ?? imported
+  return { imported, local }
+}
+
+function buildImportDecl(cst: CstNode): ImportDecl {
+  if (cst.children['StringLiteral']) {
+    const module = unquote((cst.children['StringLiteral'][0] as IToken).image)
+    const bindings = (cst.children['importBinding'] as CstNode[]).map(buildImportBinding)
+    return {
+      kind: 'named',
+      module,
+      bindings: bindings.map((b) => ({
+        local: b.local,
+        imported: b.imported,
+      })),
+    }
+  }
+
+  const nsid = buildNsid(cst.children['nsid']![0] as CstNode)
+  const aliasTok = (cst.children['Identifier'] as IToken[] | undefined)?.[0]
+  const local = aliasTok?.image ?? nsid.name.split('.').pop()!
+  return {
+    kind: 'whole',
+    module: nsid.name,
+    bindings: [{ local, imported: 'main' }],
+    span: nsid.span,
+  }
+}
+
 function buildTypeAtom(cst: CstNode): TypeExpr {
-  // #fragment only
   if (!cst.children['nsid']) {
     const id = cst.children['Identifier']![0] as IToken
     return { kind: 'ref', name: `#${id.image}`, span: tokenSpan(id) }
@@ -296,6 +514,7 @@ function buildTypeExpr(cst: CstNode): TypeExpr {
     return {
       kind: 'union',
       refs: parts.map(buildTypeExpr),
+      closed: Boolean(cst.children['ClosedKw']),
       span: tokenSpan(cst.children['UnionKw']![0] as IToken),
     }
   }
@@ -321,16 +540,131 @@ function buildField(cst: CstNode): Field {
   }
 }
 
+function buildErrorItem(cst: CstNode): ErrorDecl {
+  const nameTok = cst.children['Identifier']![0] as IToken
+  const descTok = cst.children['StringLiteral']?.[0] as IToken | undefined
+  return {
+    name: nameTok.image,
+    description: descTok ? unquote(descTok.image) : undefined,
+    span: tokenSpan(nameTok),
+  }
+}
+
+function buildIoMembers(members: CstNode[] | undefined): {
+  encoding?: string
+  schema?: SchemaBody
+} {
+  let encoding: string | undefined
+  let schema: SchemaBody | undefined
+  for (const m of members ?? []) {
+    if (m.children['EncodingKw']) {
+      encoding = unquote((m.children['StringLiteral']![0] as IToken).image)
+    } else if (m.children['SchemaKw']) {
+      if (m.children['typeExpr']) {
+        schema = { kind: 'type', type: buildTypeExpr(m.children['typeExpr']![0] as CstNode) }
+      } else {
+        const fields = (m.children['field'] as CstNode[] | undefined)?.map(buildField) ?? []
+        schema = { kind: 'inline', fields }
+      }
+    }
+  }
+  return { encoding, schema }
+}
+
+function buildPermissionEntry(cst: CstNode): PermissionEntry {
+  const resourceTok = cst.children['Identifier']![0] as IToken
+  const resourceName = resourceTok.image
+  if (resourceName !== 'rpc' && resourceName !== 'repo') {
+    throw new LexdSyntaxError(
+      `permission resource must be rpc or repo, got "${resourceName}"`,
+      tokenSpan(resourceTok),
+    )
+  }
+  const props: PermissionEntry['props'] = {}
+  for (const p of (cst.children['permissionProp'] as CstNode[] | undefined) ?? []) {
+    const key = (p.children['Identifier']![0] as IToken).image
+    if (p.children['BooleanLiteral']) {
+      props[key] = (p.children['BooleanLiteral'][0] as IToken).image === 'true'
+    } else if (p.children['LBracket']) {
+      const strs = (p.children['StringLiteral'] as IToken[] | undefined) ?? []
+      props[key] = strs.map((t) => unquote(t.image))
+    } else if (p.children['StringLiteral']) {
+      props[key] = unquote((p.children['StringLiteral'][0] as IToken).image)
+    }
+  }
+  return { resource: resourceName, props }
+}
+
+function buildTypeMember(cst: CstNode): { field?: Field; block?: TypeBlock } {
+  if (cst.children['paramsBlock']) {
+    const b = cst.children['paramsBlock']![0] as CstNode
+    return {
+      block: {
+        kind: 'params',
+        fields: (b.children['field'] as CstNode[] | undefined)?.map(buildField) ?? [],
+      },
+    }
+  }
+  if (cst.children['inputBlock']) {
+    const b = cst.children['inputBlock']![0] as CstNode
+    const { encoding, schema } = buildIoMembers(b.children['ioMember'] as CstNode[] | undefined)
+    const block: IoBlock = { kind: 'input', encoding, schema }
+    return { block }
+  }
+  if (cst.children['outputBlock']) {
+    const b = cst.children['outputBlock']![0] as CstNode
+    const { encoding, schema } = buildIoMembers(b.children['ioMember'] as CstNode[] | undefined)
+    const block: IoBlock = { kind: 'output', encoding, schema }
+    return { block }
+  }
+  if (cst.children['messageBlock']) {
+    const b = cst.children['messageBlock']![0] as CstNode
+    const block: MessageBlock = {
+      kind: 'message',
+      schema: buildTypeExpr(b.children['typeExpr']![0] as CstNode),
+    }
+    return { block }
+  }
+  if (cst.children['errorsBlock']) {
+    const b = cst.children['errorsBlock']![0] as CstNode
+    return {
+      block: {
+        kind: 'errors',
+        errors: (b.children['errorItem'] as CstNode[] | undefined)?.map(buildErrorItem) ?? [],
+      },
+    }
+  }
+  if (cst.children['permissionsBlock']) {
+    const b = cst.children['permissionsBlock']![0] as CstNode
+    const block: PermissionsBlock = {
+      kind: 'permissions',
+      entries: (b.children['permissionEntry'] as CstNode[] | undefined)?.map(buildPermissionEntry) ?? [],
+    }
+    return { block }
+  }
+  return { field: buildField(cst.children['field']![0] as CstNode) }
+}
+
 function buildTypeDecl(cst: CstNode): TypeDecl {
   const attrs = (cst.children['attribute'] as CstNode[] | undefined)?.map(buildAttribute) ?? []
   const nameTok = cst.children['Identifier']![0] as IToken
-  const fields = (cst.children['field'] as CstNode[] | undefined)?.map(buildField) ?? []
-  const primary = attrs.some((a) => a.name === 'record')
+  const members = (cst.children['typeMember'] as CstNode[] | undefined) ?? []
+  const fields: Field[] = []
+  const blocks: TypeBlock[] = []
+  for (const m of members) {
+    const built = buildTypeMember(m)
+    if (built.field) fields.push(built.field)
+    if (built.block) blocks.push(built.block)
+  }
+  const primary = attrs.some((a) => PRIMARY_ATTRS.has(a.name))
+  const isToken = attrs.some((a) => a.name === 'token')
   return {
     name: nameTok.image,
     attributes: attrs,
     fields,
+    blocks,
     primary,
+    isToken,
     span: tokenSpan(nameTok),
   }
 }
@@ -370,6 +704,7 @@ export function parseLexd(source: string, filename?: string): LexdFile {
     )
   }
 
+  const imports = (cst.children['importDecl'] as CstNode[] | undefined)?.map(buildImportDecl) ?? []
   const namespaces = (cst.children['namespaceDecl'] as CstNode[] | undefined)?.map(buildNamespace) ?? []
-  return { namespaces, filename }
+  return { imports, namespaces, filename }
 }

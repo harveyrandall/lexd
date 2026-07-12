@@ -21,6 +21,8 @@
     "chevrotain": "^11.0.3"
   },
   "devDependencies": {
+    "@lexd/stdlib-atproto": "workspace:*",
+    "@lexd/stdlib-standard": "workspace:*",
     "@types/node": "^22.15.21",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"

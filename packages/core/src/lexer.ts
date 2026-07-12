@@ -34,8 +34,21 @@ export const BooleanLiteral = createToken({
 })
 
 export const NamespaceKw = createToken({ name: 'NamespaceKw', pattern: /namespace/ })
+export const ImportKw = createToken({ name: 'ImportKw', pattern: /import/ })
+export const FromKw = createToken({ name: 'FromKw', pattern: /from/ })
+export const AsKw = createToken({ name: 'AsKw', pattern: /as/ })
 export const TypeKw = createToken({ name: 'TypeKw', pattern: /type/ })
 export const UnionKw = createToken({ name: 'UnionKw', pattern: /union/ })
+export const ClosedKw = createToken({ name: 'ClosedKw', pattern: /closed/ })
+
+export const ParamsKw = createToken({ name: 'ParamsKw', pattern: /params/ })
+export const InputKw = createToken({ name: 'InputKw', pattern: /input/ })
+export const OutputKw = createToken({ name: 'OutputKw', pattern: /output/ })
+export const MessageKw = createToken({ name: 'MessageKw', pattern: /message/ })
+export const ErrorsKw = createToken({ name: 'ErrorsKw', pattern: /errors/ })
+export const EncodingKw = createToken({ name: 'EncodingKw', pattern: /encoding/ })
+export const SchemaKw = createToken({ name: 'SchemaKw', pattern: /schema/ })
+export const PermissionsKw = createToken({ name: 'PermissionsKw', pattern: /permissions/ })
 
 export const LCurly = createToken({ name: 'LCurly', pattern: /\{/ })
 export const RCurly = createToken({ name: 'RCurly', pattern: /\}/ })
@@ -50,7 +63,6 @@ export const At = createToken({ name: 'At', pattern: /@/ })
 export const Hash = createToken({ name: 'Hash', pattern: /#/ })
 export const Dot = createToken({ name: 'Dot', pattern: /\./ })
 
-// Identifiers after keywords so keywords win
 export const Identifier = createToken({
   name: 'Identifier',
   pattern: /[A-Za-z_][A-Za-z0-9_-]*/,
@@ -64,8 +76,20 @@ export const allTokens = [
   NumberLiteral,
   BooleanLiteral,
   NamespaceKw,
+  ImportKw,
+  FromKw,
+  AsKw,
   TypeKw,
+  ClosedKw,
   UnionKw,
+  ParamsKw,
+  InputKw,
+  OutputKw,
+  MessageKw,
+  ErrorsKw,
+  EncodingKw,
+  SchemaKw,
+  PermissionsKw,
   LCurly,
   RCurly,
   LParen,

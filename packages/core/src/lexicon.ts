@@ -11,6 +11,10 @@ export type LexUserType =
   | LexRecord
   | LexObject
   | LexToken
+  | LexQuery
+  | LexProcedure
+  | LexSubscription
+  | LexPermissionSet
   | LexPrimitive
   | LexArray
   | LexBlob
@@ -31,6 +35,63 @@ export interface LexObject {
   required?: string[]
   properties: Record<string, LexFieldType>
   nullable?: string[]
+}
+
+export interface LexParams {
+  type: 'params'
+  required?: string[]
+  properties: Record<string, LexFieldType>
+}
+
+export interface LexXrpcBody {
+  description?: string
+  encoding: string
+  schema?: LexFieldType
+}
+
+export interface LexXrpcError {
+  name: string
+  description?: string
+}
+
+export interface LexQuery {
+  type: 'query'
+  description?: string
+  parameters?: LexParams
+  output?: LexXrpcBody
+  errors?: LexXrpcError[]
+}
+
+export interface LexProcedure {
+  type: 'procedure'
+  description?: string
+  parameters?: LexParams
+  input?: LexXrpcBody
+  output?: LexXrpcBody
+  errors?: LexXrpcError[]
+}
+
+export interface LexSubscription {
+  type: 'subscription'
+  description?: string
+  parameters?: LexParams
+  message: { description?: string; schema: LexUnion | LexRef }
+  errors?: LexXrpcError[]
+}
+
+export interface LexPermission {
+  type: 'permission'
+  resource: string
+  [key: string]: unknown
+}
+
+export interface LexPermissionSet {
+  type: 'permission-set'
+  description?: string
+  title?: string
+  detail?: string
+  permissions: LexPermission[]
+  errors?: LexXrpcError[]
 }
 
 export type LexFieldType =
@@ -111,11 +172,8 @@ export interface LexToken {
 }
 
 export interface CompiledLexicon {
-  /** Lexicon NSID */
   id: string
-  /** Suggested output filename (flat layout) */
   filename: string
   doc: LexiconDoc
-  /** Source file that produced this doc */
   sourceFile?: string
 }
