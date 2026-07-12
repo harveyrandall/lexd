@@ -1,0 +1,15 @@
+namespace app.bsky.actor {
+  @query
+  @description("Get detailed profile view of an actor.")
+  type getProfile {
+    params {
+      @format("at-identifier")
+      @description("Handle or DID of account to fetch profile of.")
+      actor: string
+    }
+    output {
+      encoding: "application/json"
+      schema: app.bsky.actor.defs#profileViewDetailed
+    }
+  }
+}

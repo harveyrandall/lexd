@@ -1,0 +1,17 @@
+namespace app.bsky {
+  @permissionSet
+  @title("Create Bluesky Posts")
+  @detail("Can create posts, but not update or delete them.")
+  type authCreatePosts {
+    permissions {
+      rpc {
+        inheritAud: true
+        lxm: ["app.bsky.video.uploadVideo", "app.bsky.video.getJobStatus"]
+      }
+      repo {
+        collection: ["app.bsky.feed.post", "app.bsky.feed.postgate"]
+        action: ["create"]
+      }
+    }
+  }
+}

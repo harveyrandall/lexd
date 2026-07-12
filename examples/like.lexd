@@ -1,0 +1,9 @@
+import { StrongRef } from "com.atproto.repo.strongRef"
+
+namespace app.bsky.feed {
+  @record("tid")
+  type like {
+    subject: StrongRef
+    @format("datetime") createdAt: string
+  }
+}

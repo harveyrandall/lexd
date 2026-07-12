@@ -1,0 +1,28 @@
+namespace com.example.sync {
+  @subscription
+  @description("Minimal firehose-style subscription for tests.")
+  type subscribeDemo {
+    params {
+      cursor?: integer
+    }
+    message {
+      schema: union(#commit, #identity)
+    }
+    errors {
+      FutureCursor
+      ConsumerTooSlow: "Consumer cannot keep up with the stream."
+    }
+  }
+
+  type commit {
+    seq: integer
+    @format("did") repo: string
+    @format("datetime") time: string
+  }
+
+  type identity {
+    seq: integer
+    @format("did") did: string
+    @format("datetime") time: string
+  }
+}

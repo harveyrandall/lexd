@@ -1,3 +1,5 @@
+import { StrongRef } from "com.atproto.repo.strongRef"
+
 namespace app.bsky.feed {
   @record("tid")
   type post {
@@ -10,10 +12,5 @@ namespace app.bsky.feed {
   type Reply {
     root: StrongRef
     parent: StrongRef
-  }
-
-  type StrongRef {
-    @format("at-uri") uri: string
-    @format("cid") cid: string
   }
 }
