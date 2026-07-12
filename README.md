@@ -25,8 +25,8 @@ pnpm lexd compile "examples/**/*.lexd" -o lexicons
 
 | Package | Role |
 | --- | --- |
-| `@lexd/core` | Parser, AST, import resolution, JSON emitter |
-| `@lexd/cli` | `lexd compile` CLI |
+| `@lexd/core` | Parser, AST, import resolution, JSON emitter, decompiler |
+| `@lexd/cli` | `lexd compile` / `lexd decompile` CLI |
 | `@lexd/vite-plugin` | Vite plugin (disk emit + optional `.lexd` imports) |
 | `@lexd/stdlib-atproto` | Curated `com.atproto.*` `.lexd` sources |
 | `@lexd/stdlib-standard` | Curated `site.standard.*` `.lexd` sources |
@@ -229,15 +229,21 @@ pnpm lexd compile "examples/**/*.lexd" -o lexicons -w
 
 # Nested paths: lexicons/app/bsky/actor/profile.json
 pnpm lexd compile "examples/**/*.lexd" -o lexicons --layout nested
+
+# Decompile lexicon JSON back to .lexd (flat NSID filenames)
+pnpm lexd decompile lexicons -o recovered
+pnpm lexd decompile lexicons/app.bsky.actor.profile.json -o recovered
 ```
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
-| `-o, --out <dir>` | `lexicons` | Output directory |
-| `--layout flat\|nested` | `flat` | `id.json` vs `id/path.json` |
+| `-o, --out <dir>` | `lexicons` (compile) / `lexd-out` (decompile) | Output directory |
+| `--layout flat\|nested` | `flat` | `id.json` vs `id/path.json` (compile only) |
 | `-w, --watch` | off | Recompile on change |
 
 `compile` also loads `@lexd/stdlib-atproto` and `@lexd/stdlib-standard` from the workspace/node_modules so `import { … } from "com.atproto…"` resolves without listing those files on the command line. Stdlib lexicons are emitted when you include their sources in the glob (or compile the stdlib package paths explicitly).
+
+`decompile` writes one `.lexd` file per lexicon JSON using the flat NSID name (e.g. `app.bsky.actor.profile.lexd`). Known stdlib refs such as `com.atproto.repo.strongRef` become named imports (`StrongRef`) instead of inlined full NSIDs.
 
 ---
 
@@ -295,11 +301,10 @@ See [atproto made simple: publishing lexicons](https://underreacted.leaflet.pub/
 | Milestone | Status |
 | --- | --- |
 | Records, objects, defs modules, imports, stdlib seeds | Done (M0/M1) |
-| `@query` / `@procedure` / `@subscription` / `@permissionSet`, tokens, blob/nullable/closed unions | **Current (M2)** |
-| JSON → `.lexd` decompiler | Planned (M3) |
-| LSP / VS Code extension | Planned (M4) |
+| `@query` / `@procedure` / `@subscription` / `@permissionSet`, tokens, blob/nullable/closed unions | Done (M2) |
+| JSON → `.lexd` decompiler | **Done (M3)** |
+| LSP / VS Code extension | **Current (M4)** |
 
 ## Roadmap (short)
 
-1. **M3** — Decompiler to bootstrap stdlib from upstream JSON
-2. **M4** — Language server and editor support
+1. **M4** — Language server and editor support
