@@ -1,7 +1,7 @@
 {
   "name": "@lexd/cli",
   "version": "0.1.0",
-  "description": "CLI for compiling .lexd Lexicon DSL to JSON",
+  "description": "CLI for compiling and decompiling AT Proto Lexicon DSL (.lexd)",
   "type": "module",
   "bin": {
     "lexd": "./dist/cli.js"
