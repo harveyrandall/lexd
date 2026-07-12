@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { Command } from 'commander'
 import { glob } from 'glob'
@@ -8,6 +8,7 @@ import {
   compileFiles,
   decompile,
   emitJson,
+  lexdOutputPath,
   nestedOutputPath,
   type CompiledLexicon,
   type LexiconDoc,
@@ -84,7 +85,7 @@ program
     }
   })
 
-function collectJsonFiles(target: string): string[] {
+async function collectJsonFiles(target: string): Promise<string[]> {
   const abs = resolve(target)
   if (!existsSync(abs)) {
     throw new Error(`Path not found: ${target}`)
@@ -99,27 +100,26 @@ function collectJsonFiles(target: string): string[] {
   if (!st.isDirectory()) {
     throw new Error(`Not a file or directory: ${target}`)
   }
-  const out: string[] = []
-  const walk = (dir: string) => {
-    for (const name of readdirSync(dir)) {
-      const p = join(dir, name)
-      const s = statSync(p)
-      if (s.isDirectory()) walk(p)
-      else if (name.endsWith('.json')) out.push(p)
-    }
-  }
-  walk(abs)
-  return out.sort()
+  return glob('**/*.json', { cwd: abs, absolute: true, nodir: true }).then((files) =>
+    files.sort(),
+  )
 }
 
 program
   .command('decompile')
   .argument('<file|dir>', 'Lexicon JSON file or directory of JSON files')
   .option('-o, --out <dir>', 'Output directory for .lexd files', 'lexd-out')
-  .action((target: string, opts: { out: string }) => {
+  .option('--layout <layout>', 'Output layout: flat | nested', 'flat')
+  .action(async (target: string, opts: { out: string; layout: string }) => {
+    if (opts.layout !== 'flat' && opts.layout !== 'nested') {
+      console.error(`Invalid --layout "${opts.layout}" (use flat or nested)`)
+      process.exitCode = 1
+      return
+    }
+
     let files: string[]
     try {
-      files = collectJsonFiles(target)
+      files = await collectJsonFiles(target)
     } catch (err) {
       console.error(err instanceof Error ? err.message : err)
       process.exitCode = 1
@@ -133,6 +133,7 @@ program
     }
 
     const outDir = resolve(opts.out)
+    const layout = opts.layout as 'flat' | 'nested'
     mkdirSync(outDir, { recursive: true })
 
     for (const file of files) {
@@ -159,7 +160,9 @@ program
         continue
       }
 
-      const dest = join(outDir, `${doc.id}.lexd`)
+      const rel = lexdOutputPath(doc.id, layout)
+      const dest = join(outDir, rel)
+      mkdirSync(dirname(dest), { recursive: true })
       writeFileSync(dest, source, 'utf8')
       console.log(`wrote ${dest}`)
     }
