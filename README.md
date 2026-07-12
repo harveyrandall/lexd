@@ -30,6 +30,8 @@ pnpm lexd compile "examples/**/*.lexd" -o lexicons
 | `@lexd/vite-plugin` | Vite plugin (disk emit + optional `.lexd` imports) |
 | `@lexd/stdlib-atproto` | Curated `com.atproto.*` `.lexd` sources |
 | `@lexd/stdlib-standard` | Curated `site.standard.*` `.lexd` sources |
+| `@lexd/language-server` | LSP for `.lexd` (diagnostics, hover, completion, go-to-definition) |
+| `vscode-lexd` | VS Code / Cursor extension client |
 
 ## Install / build
 
@@ -290,16 +292,44 @@ See [atproto made simple: publishing lexicons](https://underreacted.leaflet.pub/
 
 ---
 
+## Editor support (LSP / VS Code)
+
+`@lexd/language-server` speaks the Language Server Protocol over stdio (`lexd-lsp` / `packages/language-server/dist/server.js`). The `vscode-lexd` extension contributes language id `lexd` for `.lexd` files and starts that server.
+
+Features (MVP):
+
+- Diagnostics from `parseLexd` / compile (syntax spans; compile errors when available)
+- Completion for `@` constraints, primitives, section keywords, and in-scope symbols
+- Hover for fields / types / imports
+- Go to Definition for local secondary types and imported stdlib modules when indexed
+
+### Run the extension locally
+
+```bash
+pnpm install
+pnpm build
+```
+
+Then either:
+
+1. **F5** — use the “Launch Lexd Extension” config in `.vscode/launch.json`, or
+2. **Install the folder** — `code --install-extension ./packages/vscode-lexd` (or `cursor --install-extension …`), or
+3. **Package a VSIX** — see [`packages/vscode-lexd/README.md`](packages/vscode-lexd/README.md).
+
+Open `examples/feed-post.lexd` to try diagnostics, `@` completion, and go-to-definition on `Reply`.
+
+---
+
 ## Path to the full lexicon surface
 
 | Milestone | Status |
 | --- | --- |
 | Records, objects, defs modules, imports, stdlib seeds | Done (M0/M1) |
-| `@query` / `@procedure` / `@subscription` / `@permissionSet`, tokens, blob/nullable/closed unions | **Current (M2)** |
+| `@query` / `@procedure` / `@subscription` / `@permissionSet`, tokens, blob/nullable/closed unions | Done (M2) |
 | JSON → `.lexd` decompiler | Planned (M3) |
-| LSP / VS Code extension | Planned (M4) |
+| LSP / VS Code extension | **Done (M4)** |
 
 ## Roadmap (short)
 
 1. **M3** — Decompiler to bootstrap stdlib from upstream JSON
-2. **M4** — Language server and editor support
+2. Polish LSP (semantic tokens, compile-error spans, richer import navigation)
