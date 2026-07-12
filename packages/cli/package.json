@@ -1,0 +1,25 @@
+{
+  "name": "@lexd/cli",
+  "version": "0.1.0",
+  "description": "CLI for compiling .lexd Lexicon DSL to JSON",
+  "type": "module",
+  "bin": {
+    "lexd": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js",
+    "dev": "tsc -p tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@lexd/core": "workspace:*",
+    "chokidar": "^4.0.3",
+    "commander": "^13.1.0",
+    "glob": "^11.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  }
+}
