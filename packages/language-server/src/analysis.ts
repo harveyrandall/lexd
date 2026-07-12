@@ -142,6 +142,33 @@ export function buildWorkspaceIndex(workspaceFolders: string[]): WorkspaceIndex 
   return { modules, registry }
 }
 
+function registryForAnalysis(ast: LexdFile, workspace?: WorkspaceIndex): ModuleRegistry {
+  const registry = new ModuleRegistry()
+  if (workspace) {
+    const seenPaths = new Set<string>()
+    for (const mod of workspace.modules.values()) {
+      if (seenPaths.has(mod.path)) continue
+      seenPaths.add(mod.path)
+      registry.registerFile(mod.file)
+    }
+  } else {
+    try {
+      const cwd = ast.filename ? dirname(ast.filename) : process.cwd()
+      for (const p of discoverStdlibLexdFiles(cwd)) {
+        try {
+          registry.registerFile(parseLexd(readFileSync(p, 'utf8'), p))
+        } catch {
+          /* skip */
+        }
+      }
+    } catch {
+      /* skip */
+    }
+  }
+  registry.registerFile(ast)
+  return registry
+}
+
 export function analyzeDocument(
   uri: string,
   text: string,
@@ -185,26 +212,7 @@ export function analyzeDocument(
     }
   }
 
-  const registry = workspace?.registry ?? new ModuleRegistry()
-  if (!workspace) {
-    registry.registerFile(ast)
-    // Best-effort stdlib for single-file analysis
-    try {
-      const cwd = dirname(path)
-      for (const p of discoverStdlibLexdFiles(cwd)) {
-        try {
-          registry.registerFile(parseLexd(readFileSync(p, 'utf8'), p))
-        } catch {
-          /* skip */
-        }
-      }
-    } catch {
-      /* skip */
-    }
-  } else {
-    // Ensure current (possibly unsaved) file is registered on top of workspace
-    registry.registerFile(ast)
-  }
+  const registry = registryForAnalysis(ast, workspace)
 
   try {
     const refs = buildImportMap(ast, registry)
