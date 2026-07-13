@@ -20,7 +20,7 @@ export interface LexCodegenPlan {
  * Plan codegen output from compiled lexicon documents.
  * Consumers can write `artifacts` to disk or pipe them to @atproto/lex tooling.
  */
-export function planLexCodegen(docs: LexiconDoc[], options: LexCodegenOptions): LexCodegenPlan {
+export function planLexCodegen(docs: LexiconDoc[], _options: LexCodegenOptions): LexCodegenPlan {
   const artifacts: LexCodegenArtifact[] = docs.map((doc) => ({
     path: `${doc.id.replaceAll('.', '/')}.json`,
     content: `${JSON.stringify(doc, null, 2)}\n`,
@@ -37,15 +37,14 @@ export async function tryAtprotoLexCodegen(
   docs: LexiconDoc[],
   options: LexCodegenOptions,
 ): Promise<LexCodegenPlan | false> {
+  let mod: { generate?: (docs: LexiconDoc[], opts: { outDir: string }) => Promise<void> }
   try {
     const specifier = '@atproto/lex-cli'
-    const mod = (await import(specifier)) as {
-      generate?: (docs: LexiconDoc[], opts: { outDir: string }) => Promise<void>
-    }
-    if (typeof mod.generate !== 'function') return false
-    await mod.generate(docs, { outDir: options.outDir })
-    return { artifacts: [] }
+    mod = (await import(specifier)) as typeof mod
   } catch {
     return false
   }
+  if (typeof mod.generate !== 'function') return false
+  await mod.generate(docs, { outDir: options.outDir })
+  return { artifacts: [] }
 }

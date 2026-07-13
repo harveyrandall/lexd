@@ -577,7 +577,8 @@ function buildTypeExprInner(cst: CstNode): TypeExpr {
     const fields =
       (cst.children['field'] as CstNode[] | undefined)?.map(buildField) ?? []
     const lcurly = cst.children['LCurly']![0] as IToken
-    return { kind: 'inline', fields, span: tokenSpan(lcurly) }
+    const rcurly = cst.children['RCurly']![0] as IToken
+    return { kind: 'inline', fields, span: mergeSpan(tokenSpan(lcurly), tokenSpan(rcurly)) }
   }
 
   return buildTypeAtom(cst.children['typeAtom']![0] as CstNode)

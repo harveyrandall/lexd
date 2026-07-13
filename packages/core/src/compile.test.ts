@@ -285,6 +285,7 @@ namespace test.inline.syntax {
     const meta = result.doc.defs.main?.properties?.meta
     assert.equal(meta?.type, 'object')
     assert.equal(meta?.properties?.label?.type, 'string')
+    assert.equal(meta?.properties?.count?.type, 'integer')
     assert.deepEqual(meta?.required, ['label'])
   })
 
