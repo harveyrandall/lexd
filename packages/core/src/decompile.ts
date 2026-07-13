@@ -230,8 +230,12 @@ function emitFieldLine(
 ): string {
   const opt = optional ? '?' : ''
   if (field.type === 'array') {
+    const itemType =
+      field.items.type === 'object'
+        ? hoistInlineObject(field.items, name, ctx)
+        : emitTypeExpr(field.items, ctx)
     const attrs = collectFieldAttrs(field, { nullable, forArray: true })
-    return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: ${emitTypeExpr(field, ctx)}`
+    return `${indent}${emitAttrsPrefix(attrs)}${name}${opt}: ${itemType}[]`
   }
   if (field.type === 'object') {
     const typeName = hoistInlineObject(field, name, ctx)
