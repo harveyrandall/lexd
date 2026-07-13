@@ -28,6 +28,15 @@ export class ModuleRegistry {
     this.modules.set(mod.id, mod)
   }
 
+  /** Shallow copy for per-document analysis without rebuilding from all workspace files. */
+  clone(): ModuleRegistry {
+    const next = new ModuleRegistry()
+    for (const mod of this.modules.values()) {
+      next.register({ id: mod.id, defKeys: new Set(mod.defKeys) })
+    }
+    return next
+  }
+
   /** Register all modules that a parsed file will emit. */
   registerFile(file: LexdFile): void {
     for (const ns of file.namespaces) {
