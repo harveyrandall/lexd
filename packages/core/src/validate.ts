@@ -1,19 +1,33 @@
 import type { LexiconDoc, LexUserType } from './lexicon.js'
 
+const VALID_PRIMARY_TYPES = new Set([
+  'record',
+  'query',
+  'procedure',
+  'subscription',
+  'object',
+  'token',
+  'permission-set',
+])
+
+const NSID_RE = /^[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+){2,}$/
+
 /** Validate a compiled lexicon document; returns human-readable errors. */
 export function validateLexiconDoc(doc: LexiconDoc): string[] {
   const errors: string[] = []
+  const label = doc.id || '(unknown)'
+
   if (doc.lexicon !== 1) {
-    errors.push(`"${doc.id ?? '?'}": lexicon version must be 1`)
+    errors.push(`"${label}": lexicon version must be 1`)
   }
-  if (!doc.id || !doc.id.includes('.')) {
-    errors.push('lexicon document requires a dotted NSID id')
+  if (!doc.id || !NSID_RE.test(doc.id)) {
+    errors.push(`"${label}": id is not a valid NSID`)
   }
   if (!doc.defs || Object.keys(doc.defs).length === 0) {
-    errors.push(`"${doc.id}": defs must not be empty`)
+    errors.push(`"${label}": defs must not be empty`)
   }
   for (const [name, def] of Object.entries(doc.defs ?? {})) {
-    errors.push(...validateDef(doc.id, name, def))
+    errors.push(...validateDef(doc.id || label, name, def))
   }
   return errors
 }
@@ -24,7 +38,7 @@ function validateDef(id: string, name: string, def: LexUserType): string[] {
     errors.push(`"${id}#${name}": def missing type`)
     return errors
   }
-  if (name === 'main' && ['string', 'integer', 'boolean', 'array'].includes(def.type)) {
+  if (name === 'main' && !VALID_PRIMARY_TYPES.has(def.type)) {
     errors.push(`"${id}#main": primary def cannot be type "${def.type}"`)
   }
   return errors
