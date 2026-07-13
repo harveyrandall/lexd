@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseLexd } from './parser.js'
 import { lower } from './lower.js'
-import { emitJson, nestedOutputPath } from './emit.js'
+import { emitJson, lexdOutputPath, nestedOutputPath } from './emit.js'
 import { ModuleRegistry } from './registry.js'
 import type { CompiledLexicon, LexiconDoc } from './lexicon.js'
 import type { LexdFile } from './ast.js'
@@ -47,12 +47,13 @@ export const CONSTRAINT_ATTRS = [
   'title',
   'detail',
   'token',
+  'scalar',
 ] as const
 
 export type { CompiledLexicon, LexiconDoc } from './lexicon.js'
 export { LexdSyntaxError } from './parser.js'
 export { LexdCompileError } from './errors.js'
-export { emitJson, nestedOutputPath } from './emit.js'
+export { emitJson, nestedOutputPath, lexdOutputPath } from './emit.js'
 export { decompile, decompileFile } from './decompile.js'
 export { parseLexd } from './parser.js'
 export { lower } from './lower.js'

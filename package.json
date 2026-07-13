@@ -8,9 +8,11 @@
     "test": "pnpm --filter @lexd/core test && pnpm --filter @lexd/language-server test",
     "compile:examples": "node packages/cli/dist/cli.js compile \"examples/**/*.lexd\" \"packages/stdlib-atproto/src/**/*.lexd\" \"packages/stdlib-standard/src/**/*.lexd\" -o lexicons",
     "lexd": "node packages/cli/dist/cli.js",
-    "lexd-lsp": "node packages/language-server/dist/server.js"
+    "lexd-lsp": "node packages/language-server/dist/server.js",
+    "stdlib:bootstrap": "node --import tsx scripts/bootstrap-stdlib.mts"
   },
   "devDependencies": {
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
 }

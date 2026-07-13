@@ -133,15 +133,38 @@ class LexdParser extends CstParser {
 
   private typeMember = this.RULE('typeMember', () => {
     this.OR([
-      { ALT: () => this.SUBRULE(this.paramsBlock) },
-      { ALT: () => this.SUBRULE(this.inputBlock) },
-      { ALT: () => this.SUBRULE(this.outputBlock) },
-      { ALT: () => this.SUBRULE(this.messageBlock) },
-      { ALT: () => this.SUBRULE(this.errorsBlock) },
-      { ALT: () => this.SUBRULE(this.permissionsBlock) },
       { ALT: () => this.SUBRULE(this.field) },
+      {
+        ALT: () => this.SUBRULE(this.paramsBlock),
+        GATE: () => this.laSectionBlock(ParamsKw),
+      },
+      {
+        ALT: () => this.SUBRULE(this.inputBlock),
+        GATE: () => this.laSectionBlock(InputKw),
+      },
+      {
+        ALT: () => this.SUBRULE(this.outputBlock),
+        GATE: () => this.laSectionBlock(OutputKw),
+      },
+      {
+        ALT: () => this.SUBRULE(this.messageBlock),
+        GATE: () => this.laSectionBlock(MessageKw),
+      },
+      {
+        ALT: () => this.SUBRULE(this.errorsBlock),
+        GATE: () => this.laSectionBlock(ErrorsKw),
+      },
+      {
+        ALT: () => this.SUBRULE(this.permissionsBlock),
+        GATE: () => this.laSectionBlock(PermissionsKw),
+      },
     ])
   })
+
+  /** Section keywords are also valid field names; only treat them as blocks when followed by `{`. */
+  private laSectionBlock = (kw: typeof ParamsKw): boolean => {
+    return this.LA(1)?.tokenType === kw && this.LA(2)?.tokenType === LCurly
+  }
 
   private paramsBlock = this.RULE('paramsBlock', () => {
     this.CONSUME(ParamsKw)
@@ -299,15 +322,35 @@ class LexdParser extends CstParser {
     ])
   })
 
+  private fieldName = this.RULE('fieldName', () => {
+    this.OR([
+      { ALT: () => this.CONSUME(Identifier) },
+      { ALT: () => this.CONSUME(ParamsKw) },
+      { ALT: () => this.CONSUME(InputKw) },
+      { ALT: () => this.CONSUME(OutputKw) },
+      { ALT: () => this.CONSUME(MessageKw) },
+      { ALT: () => this.CONSUME(ErrorsKw) },
+      { ALT: () => this.CONSUME(PermissionsKw) },
+    ])
+  })
+
   private field = this.RULE('field', () => {
     this.MANY(() => this.SUBRULE(this.attribute))
-    this.CONSUME(Identifier)
+    this.SUBRULE(this.fieldName)
     this.OPTION(() => this.CONSUME(Question))
     this.CONSUME(Colon)
     this.SUBRULE(this.typeExpr)
   })
 
   private typeExpr = this.RULE('typeExpr', () => {
+    this.SUBRULE(this.typeExprInner)
+    this.OPTION(() => {
+      this.CONSUME(LBracket)
+      this.CONSUME(RBracket)
+    })
+  })
+
+  private typeExprInner = this.RULE('typeExprInner', () => {
     this.OR([
       {
         ALT: () => {
@@ -325,10 +368,6 @@ class LexdParser extends CstParser {
       {
         ALT: () => {
           this.SUBRULE(this.typeAtom)
-          this.OPTION2(() => {
-            this.CONSUME(LBracket)
-            this.CONSUME(RBracket)
-          })
         },
       },
     ])
@@ -509,6 +548,14 @@ function buildTypeAtom(cst: CstNode): TypeExpr {
 }
 
 function buildTypeExpr(cst: CstNode): TypeExpr {
+  const inner = buildTypeExprInner(cst.children['typeExprInner']![0] as CstNode)
+  if (cst.children['LBracket']) {
+    return { kind: 'array', element: inner, span: inner.span }
+  }
+  return inner
+}
+
+function buildTypeExprInner(cst: CstNode): TypeExpr {
   if (cst.children['UnionKw']) {
     const parts = cst.children['typeExpr'] as CstNode[]
     return {
@@ -519,16 +566,34 @@ function buildTypeExpr(cst: CstNode): TypeExpr {
     }
   }
 
-  const atom = buildTypeAtom(cst.children['typeAtom']![0] as CstNode)
-  if (cst.children['LBracket']) {
-    return { kind: 'array', element: atom, span: atom.span }
+  return buildTypeAtom(cst.children['typeAtom']![0] as CstNode)
+}
+
+function fieldNameToken(cst: CstNode): IToken {
+  const nameNodes = cst.children['fieldName'] as CstNode[] | undefined
+  if (!nameNodes?.length) {
+    throw new Error('Internal: field CST missing fieldName child')
   }
-  return atom
+  for (const node of nameNodes) {
+    for (const key of [
+      'Identifier',
+      'ParamsKw',
+      'InputKw',
+      'OutputKw',
+      'MessageKw',
+      'ErrorsKw',
+      'PermissionsKw',
+    ]) {
+      const tok = node.children[key]?.[0] as IToken | undefined
+      if (tok) return tok
+    }
+  }
+  throw new Error('field missing name')
 }
 
 function buildField(cst: CstNode): Field {
   const attrs = (cst.children['attribute'] as CstNode[] | undefined)?.map(buildAttribute) ?? []
-  const nameTok = cst.children['Identifier']![0] as IToken
+  const nameTok = fieldNameToken(cst)
   const optional = Boolean(cst.children['Question'])
   const type = buildTypeExpr(cst.children['typeExpr']![0] as CstNode)
   return {
@@ -658,6 +723,7 @@ function buildTypeDecl(cst: CstNode): TypeDecl {
   }
   const primary = attrs.some((a) => PRIMARY_ATTRS.has(a.name))
   const isToken = attrs.some((a) => a.name === 'token')
+  const isScalar = attrs.some((a) => a.name === 'scalar')
   return {
     name: nameTok.image,
     attributes: attrs,
@@ -665,6 +731,7 @@ function buildTypeDecl(cst: CstNode): TypeDecl {
     blocks,
     primary,
     isToken,
+    isScalar,
     span: tokenSpan(nameTok),
   }
 }

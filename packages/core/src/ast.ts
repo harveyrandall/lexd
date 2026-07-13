@@ -102,6 +102,8 @@ export interface TypeDecl extends AstNode {
   primary: boolean
   /** True when @token */
   isToken: boolean
+  /** True when @scalar(...) */
+  isScalar: boolean
 }
 
 export interface NamespaceDecl extends AstNode {

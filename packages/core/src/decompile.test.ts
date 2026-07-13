@@ -81,4 +81,46 @@ describe('lexd decompile', () => {
     assert.match(decompiled, /type Reply \{/)
     assert.match(decompiled, /root: StrongRef/)
   })
+
+  it('hoists inline object fields to named secondary types', () => {
+    const doc: LexiconDoc = {
+      lexicon: 1,
+      id: 'test.inline.object',
+      defs: {
+        main: {
+          type: 'object',
+          properties: {
+            meta: {
+              type: 'object',
+              required: ['label'],
+              properties: {
+                label: { type: 'string' },
+                count: { type: 'integer' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const source = decompile(doc)
+    assert.match(source, /meta\?: Meta/)
+    assert.match(source, /type Meta \{/)
+    assert.doesNotMatch(source, /meta: unknown/)
+
+    const dir = mkdtempSync(join(tmpdir(), 'lexd-inline-'))
+    const tmp = join(dir, 'inline.lexd')
+    writeFileSync(tmp, source)
+    const recompiled = compileFiles([tmp], { cwd: repoRoot })
+    const again = recompiled.find((r) => r.id === doc.id)?.doc
+    assert.ok(again)
+    const meta = again.defs.main?.properties?.meta
+    assert.equal(meta?.type, 'ref')
+    assert.equal(meta?.ref, '#Meta')
+    const metaDef = again.defs.Meta
+    assert.ok(metaDef && metaDef.type === 'object')
+    if (metaDef?.type === 'object') {
+      assert.equal(metaDef.properties?.label?.type, 'string')
+      assert.equal(metaDef.properties?.count?.type, 'integer')
+    }
+  })
 })

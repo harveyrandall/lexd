@@ -9,3 +9,10 @@ export function emitJson(doc: LexiconDoc, pretty = true): string {
 export function nestedOutputPath(id: string): string {
   return `${id.replaceAll('.', '/')}.json`
 }
+
+export function lexdOutputPath(id: string, layout: 'flat' | 'nested' = 'flat'): string {
+  if (layout === 'nested') {
+    return `${id.replaceAll('.', '/')}.lexd`
+  }
+  return `${id}.lexd`
+}
