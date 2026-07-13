@@ -83,4 +83,24 @@ describe('language-server analysis', () => {
     assert.match(hover.markdown, /string/)
     assert.match(hover.markdown, /maxGraphemes/)
   })
+
+  it('hover shows attributes on inline object fields', () => {
+    const src = `namespace app.example {
+  @object
+  type payload {
+    meta: {
+      @nullable count?: integer
+    }
+  }
+}
+`
+    const result = analyzeDocument('file:///tmp/inline.lexd', src)
+    const line = src.split('\n').findIndex((l) => l.includes('count'))
+    const col = src.split('\n')[line]!.indexOf('count')
+    const offset = offsetAt(src, line, col + 1)
+    const hover = hoverAt(result, offset)
+    assert.ok(hover)
+    assert.match(hover.markdown, /nullable/)
+    assert.match(hover.markdown, /integer/)
+  })
 })

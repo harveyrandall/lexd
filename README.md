@@ -236,6 +236,7 @@ pnpm lexd compile "examples/**/*.lexd" -o lexicons --layout nested
 pnpm lexd decompile lexicons -o recovered
 pnpm lexd validate "examples/**/*.lexd"
 pnpm lexd publish "examples/**/*.lexd" -o lexicons --layout nested
+pnpm lexd publish "examples/**/*.lexd" -o lexicons --dry-run
 pnpm lexd decompile lexicons/app.bsky.actor.profile.json -o recovered
 ```
 
