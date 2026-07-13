@@ -1,6 +1,0 @@
-namespace com.atproto.repo.defs {
-  type commitMeta {
-    @format("cid") cid: string
-    @format("tid") rev: string
-  }
-}

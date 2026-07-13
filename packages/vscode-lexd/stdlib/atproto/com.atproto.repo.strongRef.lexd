@@ -1,7 +1,0 @@
-namespace com.atproto.repo {
-  @object
-  type strongRef {
-    @format("at-uri") uri: string
-    @format("cid") cid: string
-  }
-}
