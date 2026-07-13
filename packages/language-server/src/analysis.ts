@@ -51,7 +51,6 @@ export interface AnalyzedDocument {
 export interface WorkspaceIndex {
   /** Module NSID → source file path + type decls for defs. */
   modules: Map<string, { path: string; types: Map<string, TypeDecl>; file: LexdFile }>
-  registry: ModuleRegistry
 }
 
 function walkLexdFiles(dir: string, out: string[] = []): string[] {
@@ -114,7 +113,6 @@ function registerModulesFromFile(
 /** Build NSID → path index from workspace roots + stdlib. */
 export function buildWorkspaceIndex(workspaceFolders: string[]): WorkspaceIndex {
   const modules = new Map<string, { path: string; types: Map<string, TypeDecl>; file: LexdFile }>()
-  const registry = new ModuleRegistry()
   const roots = workspaceFolders.length > 0 ? workspaceFolders : [process.cwd()]
   const paths = new Set<string>()
 
@@ -132,19 +130,19 @@ export function buildWorkspaceIndex(workspaceFolders: string[]): WorkspaceIndex 
     try {
       const source = readFileSync(path, 'utf8')
       const file = parseLexd(source, path)
-      registry.registerFile(file)
       registerModulesFromFile(file, path, modules)
     } catch {
       // skip unparseable files in the index
     }
   }
 
-  return { modules, registry }
+  return { modules }
 }
 
 function registryForAnalysis(ast: LexdFile, workspace?: WorkspaceIndex): ModuleRegistry {
   const registry = new ModuleRegistry()
   if (workspace) {
+    // Multiple module keys can map to the same file (one file, multiple namespaces).
     const seenPaths = new Set<string>()
     for (const mod of workspace.modules.values()) {
       if (seenPaths.has(mod.path)) continue

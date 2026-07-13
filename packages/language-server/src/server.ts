@@ -86,24 +86,36 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         resolveProvider: false,
         triggerCharacters: ['@', ':', ' ', '.', '#'],
       },
+      workspace: {
+        workspaceFolders: {
+          supported: true,
+          changeNotifications: true,
+        },
+      },
     },
   }
 })
 
 connection.onInitialized(() => {
   connection.workspace?.onDidChangeWorkspaceFolders?.((event) => {
-    for (const folder of event.removed) {
-      const path = uriToPath(folder.uri)
-      workspaceFolders = workspaceFolders.filter((f) => f !== path)
-    }
-    for (const folder of event.added) {
-      workspaceFolders.push(uriToPath(folder.uri))
-    }
-    refreshWorkspace(workspaceFolders)
-    cache.clear()
-    for (const doc of documents.all()) {
-      const analyzed = analyze(doc)
-      publishDiagnostics(doc, analyzed)
+    try {
+      for (const folder of event.removed) {
+        const path = uriToPath(folder.uri)
+        workspaceFolders = workspaceFolders.filter((f) => f !== path)
+      }
+      for (const folder of event.added) {
+        workspaceFolders.push(uriToPath(folder.uri))
+      }
+      refreshWorkspace(workspaceFolders)
+      cache.clear()
+      for (const doc of documents.all()) {
+        const analyzed = analyze(doc)
+        publishDiagnostics(doc, analyzed)
+      }
+    } catch (err) {
+      connection.console.error(
+        `Workspace refresh failed: ${err instanceof Error ? err.message : err}`,
+      )
     }
   })
 })
