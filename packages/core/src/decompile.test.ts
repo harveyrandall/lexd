@@ -123,4 +123,32 @@ describe('lexd decompile', () => {
       assert.equal(metaDef.properties?.count?.type, 'integer')
     }
   })
+
+  it('hoists array-of-object fields using the field name', () => {
+    const doc: LexiconDoc = {
+      lexicon: 1,
+      id: 'test.inline.array',
+      defs: {
+        main: {
+          type: 'object',
+          properties: {
+            tags: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['label'],
+                properties: {
+                  label: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const source = decompile(doc)
+    assert.match(source, /tags\?: Tags\[\]/)
+    assert.match(source, /type Tags \{/)
+    assert.doesNotMatch(source, /Inline1/)
+  })
 })
