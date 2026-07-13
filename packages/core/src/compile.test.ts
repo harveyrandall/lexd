@@ -268,6 +268,27 @@ describe('xrpc and permission-set', () => {
     assert.equal(main.permissions[1]?.resource, 'repo')
   })
 
+  it('supports inline object field types', () => {
+    const source = `
+namespace test.inline.syntax {
+  @object
+  type payload {
+    meta: {
+      label: string
+      count?: integer
+    }
+  }
+}
+`
+    const [result] = compile(source)
+    assert.ok(result)
+    const meta = result.doc.defs.main?.properties?.meta
+    assert.equal(meta?.type, 'object')
+    assert.equal(meta?.properties?.label?.type, 'string')
+    assert.equal(meta?.properties?.count?.type, 'integer')
+    assert.deepEqual(meta?.required, ['label'])
+  })
+
   it('supports closed unions, nullable, blob attrs, and tokens', () => {
     const [result] = compile(`
 namespace com.example {

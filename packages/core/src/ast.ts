@@ -24,6 +24,7 @@ export type TypeExpr =
   | { kind: 'array'; element: TypeExpr; span?: SourceSpan }
   | { kind: 'ref'; name: string; span?: SourceSpan }
   | { kind: 'union'; refs: TypeExpr[]; closed?: boolean; span?: SourceSpan }
+  | { kind: 'inline'; fields: Field[]; span?: SourceSpan }
 
 export type PrimitiveName =
   | 'string'

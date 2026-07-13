@@ -240,6 +240,12 @@ export function formatTypeExpr(type: TypeExpr): string {
       const closed = type.closed ? 'closed ' : ''
       return `${closed}union(${type.refs.map(formatTypeExpr).join(', ')})`
     }
+    case 'inline': {
+      const inner = type.fields
+        .map((f) => `${f.name}${f.optional ? '?' : ''}: ${formatTypeExpr(f.type)}`)
+        .join(', ')
+      return `{ ${inner} }`
+    }
   }
 }
 

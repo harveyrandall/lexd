@@ -187,12 +187,19 @@ function typeExprToLex(
       if (r.kind === 'primitive') {
         throw new LexdCompileError(`union() members must be refs, got primitive ${r.name}`)
       }
-      throw new LexdCompileError(`union() members must be refs`)
+      if (r.kind === 'inline') {
+        throw new LexdCompileError('union() members must be refs, got inline object', r.span)
+      }
+      throw new LexdCompileError('union() members must be refs')
     })
     const u: LexUnion = { type: 'union', refs }
     if (expr.closed) u.closed = true
     applyConstraints(u as unknown as Record<string, unknown>, attributes, false)
     return u
+  }
+
+  if (expr.kind === 'inline') {
+    return fieldsToObject(expr.fields, attributes, locals, imports)
   }
 
   if (expr.kind === 'ref') {
