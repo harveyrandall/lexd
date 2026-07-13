@@ -253,7 +253,11 @@ export function formatTypeExpr(type: TypeExpr): string {
     }
     case 'inline': {
       const inner = type.fields
-        .map((f) => `${f.name}${f.optional ? '?' : ''}: ${formatTypeExpr(f.type)}`)
+        .map((f) => {
+          const attrs = formatAttributes(f.attributes)
+          const prefix = attrs ? `${attrs} ` : ''
+          return `${prefix}${f.name}${f.optional ? '?' : ''}: ${formatTypeExpr(f.type)}`
+        })
         .join(', ')
       return `{ ${inner} }`
     }
