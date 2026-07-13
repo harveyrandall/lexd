@@ -34,6 +34,7 @@ const documents = new TextDocuments(TextDocument)
 
 let workspace: WorkspaceIndex | undefined
 let workspaceFolders: string[] = []
+let bundledStdlibPaths: string[] = []
 const cache = new Map<string, AnalyzedDocument>()
 
 function spanToRange(span: SourceSpan) {
@@ -44,11 +45,13 @@ function spanToRange(span: SourceSpan) {
 }
 
 function refreshWorkspace(folders: string[]): void {
-  workspace = buildWorkspaceIndex(folders)
+  workspace = buildWorkspaceIndex(folders, { stdlibPaths: bundledStdlibPaths })
 }
 
 function analyze(doc: TextDocument): AnalyzedDocument {
-  const result = analyzeDocument(doc.uri, doc.getText(), workspace)
+  const result = analyzeDocument(doc.uri, doc.getText(), workspace, {
+    stdlibPaths: bundledStdlibPaths,
+  })
   cache.set(doc.uri, result)
   return result
 }
@@ -72,6 +75,8 @@ function publishDiagnostics(doc: TextDocument, analyzed: AnalyzedDocument): void
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
+  const init = params.initializationOptions as { stdlibPaths?: string[] } | undefined
+  bundledStdlibPaths = init?.stdlibPaths ?? []
   workspaceFolders =
     params.workspaceFolders?.map((f) => uriToPath(f.uri)) ??
     (params.rootUri ? [uriToPath(params.rootUri)] : [])

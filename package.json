@@ -9,7 +9,10 @@
     "compile:examples": "node packages/cli/dist/cli.js compile \"examples/**/*.lexd\" \"packages/stdlib-atproto/src/**/*.lexd\" \"packages/stdlib-standard/src/**/*.lexd\" -o lexicons",
     "lexd": "node packages/cli/dist/cli.js",
     "lexd-lsp": "node packages/language-server/dist/server.js",
-    "stdlib:bootstrap": "node --import tsx scripts/bootstrap-stdlib.mts"
+    "stdlib:bootstrap": "node --import tsx scripts/bootstrap-stdlib.mts",
+    "pack:packages": "pnpm --filter @lexd/core pack && pnpm --filter @lexd/stdlib-atproto pack && pnpm --filter @lexd/stdlib-standard pack && pnpm --filter @lexd/cli pack && pnpm --filter @lexd/language-server pack && pnpm --filter @lexd/vite-plugin pack",
+    "publish:packages": "pnpm --filter @lexd/core publish --access public --no-git-checks && pnpm --filter @lexd/stdlib-atproto publish --access public --no-git-checks && pnpm --filter @lexd/stdlib-standard publish --access public --no-git-checks && pnpm --filter @lexd/cli publish --access public --no-git-checks && pnpm --filter @lexd/language-server publish --access public --no-git-checks && pnpm --filter @lexd/vite-plugin publish --access public --no-git-checks",
+    "package:vsix": "pnpm --filter vscode-lexd run package:vsix"
   },
   "devDependencies": {
     "tsx": "^4.19.4",

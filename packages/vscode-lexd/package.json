@@ -5,6 +5,12 @@
   "version": "0.1.0",
   "publisher": "lexd",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harveyrandall/lexd.git",
+    "directory": "packages/vscode-lexd"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -32,22 +38,21 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "bundle": "node --import tsx scripts/bundle.mts",
     "watch": "tsc -p tsconfig.json --watch",
-    "vscode:prepublish": "pnpm run build"
+    "vscode:prepublish": "pnpm --filter @lexd/core run build && pnpm --filter @lexd/language-server run build && pnpm run build && pnpm run bundle",
+    "package:vsix": "vsce package --no-dependencies"
   },
-  "files": [
-    "dist",
-    "syntaxes",
-    "language-configuration.json",
-    "README.md"
-  ],
   "dependencies": {
-    "@lexd/language-server": "workspace:*",
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
+    "@lexd/language-server": "workspace:*",
     "@types/node": "^22.15.21",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.25.12",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   }
 }

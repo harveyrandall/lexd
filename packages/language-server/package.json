@@ -2,6 +2,15 @@
   "name": "@lexd/language-server",
   "version": "0.1.0",
   "description": "Language server for the AT Proto Lexicon DSL (.lexd)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harveyrandall/lexd.git",
+    "directory": "packages/language-server"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "lexd-lsp": "./dist/server.js"
@@ -17,6 +26,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/server.js",
+    "prepack": "pnpm run build",
     "test": "node --import tsx --test src/**/*.test.ts",
     "dev": "tsc -p tsconfig.json --watch"
   },

@@ -6,3 +6,7 @@ dist-fixture/
 lexicons/
 coverage/
 .vite/
+packages/vscode-lexd/stdlib/
+packages/vscode-lexd/LICENSE
+*.vsix
+lexd-*.tgz

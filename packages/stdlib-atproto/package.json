@@ -2,6 +2,15 @@
   "name": "@lexd/stdlib-atproto",
   "version": "0.1.0",
   "description": "Curated com.atproto.* Lexicon DSL sources for lexd",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harveyrandall/lexd.git",
+    "directory": "packages/stdlib-atproto"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "lexd": "src",
   "files": ["src"],

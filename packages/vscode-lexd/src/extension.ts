@@ -15,9 +15,10 @@ let client: LanguageClient | undefined
 
 function resolveServerModule(context: ExtensionContext): string {
   const candidates = [
+    context.asAbsolutePath(path.join('dist', 'server.bundle.js')),
     // Monorepo sibling: packages/vscode-lexd → packages/language-server
     context.asAbsolutePath(path.join('..', 'language-server', 'dist', 'server.js')),
-    // Nested dependency (VSIX / packaged install)
+    // Nested dependency (dev install)
     context.asAbsolutePath(
       path.join('node_modules', '@lexd', 'language-server', 'dist', 'server.js'),
     ),
@@ -53,11 +54,18 @@ export function activate(context: ExtensionContext): void {
     },
   }
 
+  const stdlibCandidates = [
+    context.asAbsolutePath(path.join('stdlib', 'atproto')),
+    context.asAbsolutePath(path.join('stdlib', 'standard')),
+  ]
+  const stdlibPaths = stdlibCandidates.filter((dir) => existsSync(dir))
+
   const clientOptions: LanguageClientOptions = {
     documentSelector: [
       { scheme: 'file', language: 'lexd' },
       { scheme: 'untitled', language: 'lexd' },
     ],
+    ...(stdlibPaths.length > 0 ? { initializationOptions: { stdlibPaths } } : {}),
   }
 
   client = new LanguageClient('lexd', 'Lexd Language Server', serverOptions, clientOptions)

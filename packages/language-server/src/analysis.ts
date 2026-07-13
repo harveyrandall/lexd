@@ -111,13 +111,17 @@ function registerModulesFromFile(
 }
 
 /** Build NSID → path index from workspace roots + stdlib. */
-export function buildWorkspaceIndex(workspaceFolders: string[]): WorkspaceIndex {
+export function buildWorkspaceIndex(
+  workspaceFolders: string[],
+  options: { stdlibPaths?: string[] } = {},
+): WorkspaceIndex {
+  const stdlibPaths = options.stdlibPaths ?? []
   const modules = new Map<string, { path: string; types: Map<string, TypeDecl>; file: LexdFile }>()
   const roots = workspaceFolders.length > 0 ? workspaceFolders : [process.cwd()]
   const paths = new Set<string>()
 
   for (const root of roots) {
-    for (const p of discoverStdlibLexdFiles(root)) paths.add(p)
+    for (const p of discoverStdlibLexdFiles(root, stdlibPaths)) paths.add(p)
     for (const rel of ['examples', 'packages', 'src', 'lexd']) {
       const dir = join(root, rel)
       if (existsSync(dir)) {
@@ -139,7 +143,11 @@ export function buildWorkspaceIndex(workspaceFolders: string[]): WorkspaceIndex 
   return { modules }
 }
 
-function registryForAnalysis(ast: LexdFile, workspace?: WorkspaceIndex): ModuleRegistry {
+function registryForAnalysis(
+  ast: LexdFile,
+  workspace?: WorkspaceIndex,
+  stdlibPaths: string[] = [],
+): ModuleRegistry {
   const registry = new ModuleRegistry()
   if (workspace) {
     // Multiple module keys can map to the same file (one file, multiple namespaces).
@@ -152,7 +160,7 @@ function registryForAnalysis(ast: LexdFile, workspace?: WorkspaceIndex): ModuleR
   } else {
     try {
       const cwd = ast.filename ? dirname(ast.filename) : process.cwd()
-      for (const p of discoverStdlibLexdFiles(cwd)) {
+      for (const p of discoverStdlibLexdFiles(cwd, stdlibPaths)) {
         try {
           registry.registerFile(parseLexd(readFileSync(p, 'utf8'), p))
         } catch {
@@ -171,6 +179,7 @@ export function analyzeDocument(
   uri: string,
   text: string,
   workspace?: WorkspaceIndex,
+  options: { stdlibPaths?: string[] } = {},
 ): AnalyzedDocument {
   const path = uriToPath(uri)
   const diagnostics: DiagnosticInfo[] = []
@@ -210,7 +219,7 @@ export function analyzeDocument(
     }
   }
 
-  const registry = registryForAnalysis(ast, workspace)
+  const registry = registryForAnalysis(ast, workspace, options.stdlibPaths)
 
   try {
     const refs = buildImportMap(ast, registry)

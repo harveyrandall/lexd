@@ -2,6 +2,15 @@
   "name": "@lexd/stdlib-standard",
   "version": "0.1.0",
   "description": "Curated site.standard.* Lexicon DSL sources for lexd",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harveyrandall/lexd.git",
+    "directory": "packages/stdlib-standard"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "lexd": "src",
   "files": ["src"],
