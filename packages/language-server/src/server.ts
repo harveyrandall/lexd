@@ -33,6 +33,7 @@ const connection = createConnection(ProposedFeatures.all)
 const documents = new TextDocuments(TextDocument)
 
 let workspace: WorkspaceIndex | undefined
+let workspaceFolders: string[] = []
 const cache = new Map<string, AnalyzedDocument>()
 
 function spanToRange(span: SourceSpan) {
@@ -71,10 +72,10 @@ function publishDiagnostics(doc: TextDocument, analyzed: AnalyzedDocument): void
 }
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const folders =
+  workspaceFolders =
     params.workspaceFolders?.map((f) => uriToPath(f.uri)) ??
     (params.rootUri ? [uriToPath(params.rootUri)] : [])
-  refreshWorkspace(folders)
+  refreshWorkspace(workspaceFolders)
 
   return {
     capabilities: {
@@ -85,13 +86,37 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         resolveProvider: false,
         triggerCharacters: ['@', ':', ' ', '.', '#'],
       },
+      workspace: {
+        workspaceFolders: {
+          supported: true,
+          changeNotifications: true,
+        },
+      },
     },
   }
 })
 
 connection.onInitialized(() => {
-  connection.workspace?.onDidChangeWorkspaceFolders?.(() => {
-    // Best-effort refresh; clients may not support this
+  connection.workspace?.onDidChangeWorkspaceFolders?.((event) => {
+    try {
+      for (const folder of event.removed) {
+        const path = uriToPath(folder.uri)
+        workspaceFolders = workspaceFolders.filter((f) => f !== path)
+      }
+      for (const folder of event.added) {
+        workspaceFolders.push(uriToPath(folder.uri))
+      }
+      refreshWorkspace(workspaceFolders)
+      cache.clear()
+      for (const doc of documents.all()) {
+        const analyzed = analyze(doc)
+        publishDiagnostics(doc, analyzed)
+      }
+    } catch (err) {
+      connection.console.error(
+        `Workspace refresh failed: ${err instanceof Error ? err.message : err}`,
+      )
+    }
   })
 })
 
