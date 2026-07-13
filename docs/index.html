@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lexd — AT Proto Lexicon DSL</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Documentation for lexd — compile .lexd Lexicon DSL to AT Protocol lexicon JSON" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" />
+    <style>
+      :root {
+        --theme-color: #0085ff;
+      }
+      .markdown-section code {
+        font-size: 0.9em;
+      }
+      .app-name-link img {
+        width: 1.5rem;
+        vertical-align: middle;
+        margin-right: 0.4rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">Loading…</div>
+    <script>
+      window.$docsify = {
+        name: 'Lexd',
+        repo: 'harveyrandall/lexd',
+        homepage: 'README.md',
+        loadSidebar: true,
+        loadNavbar: true,
+        coverpage: true,
+        auto2top: true,
+        subMaxLevel: 3,
+        basePath: '/lexd/',
+        relativePath: false,
+        search: {
+          placeholder: 'Search docs',
+          noData: 'No results',
+          depth: 3,
+        },
+      }
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+  </body>
+</html>

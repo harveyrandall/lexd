@@ -2,6 +2,8 @@
 
 A TypeScript toolchain that compiles a concise Lexicon DSL (`.lexd`) into AT Protocol lexicon JSON — usable with goat, [`@atproto/lex`](https://www.npmjs.com/package/@atproto/lex), [pdsls](https://pdsls.dev/), and the rest of the Atmosphere tooling.
 
+**Documentation:** [harveyrandall.github.io/lexd](https://harveyrandall.github.io/lexd/) (Docsify site in [`docs/`](docs/))
+
 ## Quick example
 
 ```lexd
