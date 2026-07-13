@@ -3,7 +3,7 @@
   "displayName": "Lexd (AT Proto Lexicon DSL)",
   "description": "Language support for .lexd — Lexicon DSL for AT Protocol",
   "version": "0.1.0",
-  "publisher": "lexd",
+  "publisher": "harveyrandall",
   "private": true,
   "license": "MIT",
   "repository": {
