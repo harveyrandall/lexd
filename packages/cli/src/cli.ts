@@ -228,8 +228,9 @@ program
   .argument('<patterns...>', 'Glob patterns for .lexd files')
   .option('-o, --out <dir>', 'Output directory for lexicon JSON', 'lexicons')
   .addOption(layoutOption)
+  .option('--dry-run', 'Validate and print output paths without writing files', false)
   .description('Validate, compile, and write lexicon JSON for Atmosphere / PDS publish')
-  .action(async (patterns: string[], opts: { out: string; layout: 'flat' | 'nested' }) => {
+  .action(async (patterns: string[], opts: { out: string; layout: 'flat' | 'nested'; dryRun: boolean }) => {
     let files: string[]
     try {
       files = await resolveLexdPatterns(patterns)
@@ -253,18 +254,28 @@ program
     }
 
     const outDir = resolve(opts.out)
-    mkdirSync(outDir, { recursive: true })
+    if (!opts.dryRun) {
+      mkdirSync(outDir, { recursive: true })
+    }
 
     for (const item of compiled) {
       const rel =
         opts.layout === 'nested' ? nestedOutputPath(item.id) : item.filename
       const dest = join(outDir, rel)
+      if (opts.dryRun) {
+        console.log(`would publish ${dest}`)
+        continue
+      }
       mkdirSync(dirname(dest), { recursive: true })
       writeFileSync(dest, emitJson(item.doc), 'utf8')
       console.log(`published ${dest}`)
     }
 
-    console.log(`published ${compiled.length} lexicon(s) to ${outDir}`)
+    console.log(
+      opts.dryRun
+        ? `dry-run: would publish ${compiled.length} lexicon(s) to ${outDir}`
+        : `published ${compiled.length} lexicon(s) to ${outDir}`,
+    )
   })
 
 program.parse()
