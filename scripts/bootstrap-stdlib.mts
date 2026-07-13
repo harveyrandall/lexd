@@ -7,8 +7,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { decompile, type LexiconDoc } from '../packages/core/src/decompile.ts'
+import { decompile, lastSegment, toPascalCase, type LexiconDoc } from '../packages/core/src/decompile.ts'
 import { lexdOutputPath } from '../packages/core/src/emit.ts'
+import { STDLIB_MODULE_PREFIXES } from '../packages/core/src/stdlib-imports.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const repoRoot = join(here, '..')
@@ -19,16 +20,6 @@ const srcDir = join(stdlibRoot, 'src')
 interface Manifest {
   source: { baseUrl: string }
   lexicons: string[]
-}
-
-function lastSegment(nsid: string): string {
-  const i = nsid.lastIndexOf('.')
-  return i >= 0 ? nsid.slice(i + 1) : nsid
-}
-
-function toPascalCase(segment: string): string {
-  if (!segment) return segment
-  return segment.charAt(0).toUpperCase() + segment.slice(1)
 }
 
 async function fetchLexicon(baseUrl: string, relPath: string): Promise<LexiconDoc> {
@@ -56,6 +47,8 @@ function renderImportsFile(imports: Record<string, string>): string {
     .map(([id, name]) => `  '${id}': '${name}',`)
     .join('\n')
 
+  const prefixLines = STDLIB_MODULE_PREFIXES.map((p) => `  '${p}',`).join('\n')
+
   return `/**
  * Preferred import bindings and module prefixes for decompiler output.
  * Updated by \`pnpm stdlib:bootstrap\` when syncing from upstream lexicons.
@@ -66,9 +59,7 @@ ${entries}
 
 /** NSID prefixes for modules that should be imported rather than fully qualified. */
 export const STDLIB_MODULE_PREFIXES = [
-  'com.atproto.',
-  'app.bsky.',
-  'site.standard.',
+${prefixLines}
 ] as const
 `
 }
@@ -78,13 +69,17 @@ async function main(): Promise<void> {
   const { baseUrl } = manifest.source
   mkdirSync(srcDir, { recursive: true })
 
-  const docs: LexiconDoc[] = []
-  for (const rel of manifest.lexicons) {
-    const doc = await fetchLexicon(baseUrl, rel)
-    if (doc.lexicon !== 1 || !doc.id) {
-      throw new Error(`Invalid lexicon in ${rel}`)
-    }
-    docs.push(doc)
+  const docs: LexiconDoc[] = await Promise.all(
+    manifest.lexicons.map(async (rel) => {
+      const doc = await fetchLexicon(baseUrl, rel)
+      if (doc.lexicon !== 1 || !doc.id) {
+        throw new Error(`Invalid lexicon in ${rel}`)
+      }
+      return doc
+    }),
+  )
+
+  for (const doc of docs) {
     const source = decompile(doc)
     const dest = join(srcDir, lexdOutputPath(doc.id, 'flat'))
     writeFileSync(dest, source, 'utf8')

@@ -570,7 +570,10 @@ function buildTypeExprInner(cst: CstNode): TypeExpr {
 }
 
 function fieldNameToken(cst: CstNode): IToken {
-  const nameNodes = (cst.children['fieldName'] as CstNode[] | undefined) ?? [cst]
+  const nameNodes = cst.children['fieldName'] as CstNode[] | undefined
+  if (!nameNodes?.length) {
+    throw new Error('Internal: field CST missing fieldName child')
+  }
   for (const node of nameNodes) {
     for (const key of [
       'Identifier',

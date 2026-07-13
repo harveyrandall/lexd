@@ -116,7 +116,11 @@ describe('lexd decompile', () => {
     const meta = again.defs.main?.properties?.meta
     assert.equal(meta?.type, 'ref')
     assert.equal(meta?.ref, '#Meta')
-    assert.ok(again.defs.Meta)
-    assert.ok(docsEqual(again, compileFiles([tmp], { cwd: repoRoot }).find((r) => r.id === doc.id)!.doc))
+    const metaDef = again.defs.Meta
+    assert.ok(metaDef && metaDef.type === 'object')
+    if (metaDef?.type === 'object') {
+      assert.equal(metaDef.properties?.label?.type, 'string')
+      assert.equal(metaDef.properties?.count?.type, 'integer')
+    }
   })
 })

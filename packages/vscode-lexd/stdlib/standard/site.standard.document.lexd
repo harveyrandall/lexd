@@ -1,0 +1,19 @@
+import { StrongRef } from "com.atproto.repo.strongRef"
+import { selfLabels } from "com.atproto.label.defs"
+
+// Starter shape inspired by site.standard.document — not a full port.
+namespace site.standard {
+  @record("tid")
+  @description("A document record representing published web content.")
+  type document {
+    @description("Publication at-uri or https URL for the site.")
+    site: string
+    @maxGraphemes(500) @maxLength(5000) title: string
+    @format("datetime") publishedAt: string
+    @maxGraphemes(3000) @maxLength(30000) description?: string
+    path?: string
+    @format("datetime") updatedAt?: string
+    bskyPostRef?: StrongRef
+    labels?: selfLabels
+  }
+}

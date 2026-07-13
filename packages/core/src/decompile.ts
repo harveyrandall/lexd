@@ -54,7 +54,7 @@ interface DecompileCtx {
   inlineCounter: number
 }
 
-function lastSegment(nsid: string): string {
+export function lastSegment(nsid: string): string {
   const i = nsid.lastIndexOf('.')
   return i >= 0 ? nsid.slice(i + 1) : nsid
 }
@@ -65,7 +65,7 @@ function parentNamespace(nsid: string): string {
   return nsid.slice(0, i)
 }
 
-function toPascalCase(segment: string): string {
+export function toPascalCase(segment: string): string {
   if (!segment) return segment
   return segment.charAt(0).toUpperCase() + segment.slice(1)
 }
@@ -601,6 +601,7 @@ export function decompile(doc: LexiconDoc): string {
       bodyLines.push('')
       bodyLines.push(...emitSecondaryDef(name, doc.defs[name]!, ctx, indent))
     }
+    // Map iteration visits entries in insertion order, including nested hoists added mid-loop.
     for (const [hoistName, obj] of ctx.hoisted) {
       bodyLines.push('')
       bodyLines.push(...emitNamedObjectType(hoistName, obj, ctx, indent))
@@ -613,6 +614,7 @@ export function decompile(doc: LexiconDoc): string {
       if (i > 0) bodyLines.push('')
       bodyLines.push(...emitSecondaryDef(name, doc.defs[name]!, ctx, indent))
     })
+    // Map iteration visits entries in insertion order, including nested hoists added mid-loop.
     for (const [hoistName, obj] of ctx.hoisted) {
       bodyLines.push('')
       bodyLines.push(...emitNamedObjectType(hoistName, obj, ctx, indent))

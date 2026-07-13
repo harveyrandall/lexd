@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { glob } from 'glob'
 import chokidar from 'chokidar'
 import {
@@ -16,6 +16,10 @@ import {
 
 const program = new Command()
 
+const layoutOption = new Option('--layout <layout>', 'Output layout: flat | nested')
+  .choices(['flat', 'nested'])
+  .default('flat')
+
 program
   .name('lexd')
   .description('Compile AT Proto Lexicon DSL (.lexd) to lexicon JSON')
@@ -25,15 +29,9 @@ program
   .command('compile')
   .argument('<patterns...>', 'Glob patterns for .lexd files')
   .option('-o, --out <dir>', 'Output directory', 'lexicons')
-  .option('--layout <layout>', 'Output layout: flat | nested', 'flat')
+  .addOption(layoutOption)
   .option('-w, --watch', 'Watch for changes and recompile', false)
-  .action(async (patterns: string[], opts: { out: string; layout: string; watch: boolean }) => {
-    if (opts.layout !== 'flat' && opts.layout !== 'nested') {
-      console.error(`Invalid --layout "${opts.layout}" (use flat or nested)`)
-      process.exitCode = 1
-      return
-    }
-
+  .action(async (patterns: string[], opts: { out: string; layout: 'flat' | 'nested'; watch: boolean }) => {
     const run = async () => {
       const files = (
         await Promise.all(patterns.map((p) => glob(p, { nodir: true, absolute: true })))
@@ -109,14 +107,8 @@ program
   .command('decompile')
   .argument('<file|dir>', 'Lexicon JSON file or directory of JSON files')
   .option('-o, --out <dir>', 'Output directory for .lexd files', 'lexd-out')
-  .option('--layout <layout>', 'Output layout: flat | nested', 'flat')
-  .action(async (target: string, opts: { out: string; layout: string }) => {
-    if (opts.layout !== 'flat' && opts.layout !== 'nested') {
-      console.error(`Invalid --layout "${opts.layout}" (use flat or nested)`)
-      process.exitCode = 1
-      return
-    }
-
+  .addOption(new Option('--layout <layout>', 'Output layout: flat | nested').choices(['flat', 'nested']).default('flat'))
+  .action(async (target: string, opts: { out: string; layout: 'flat' | 'nested' }) => {
     let files: string[]
     try {
       files = await collectJsonFiles(target)

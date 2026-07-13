@@ -309,4 +309,39 @@ namespace com.example {
     const marker = result.doc.defs.marker
     assert.ok(marker && marker.type === 'token')
   })
+
+  it('compiles @scalar type to primitive with knownValues', () => {
+    const [result] = compile(`
+namespace test.scalar {
+  @scalar("string")
+  @knownValues("a", "b")
+  type myStr {}
+}
+`)
+    assert.ok(result)
+    const def = result.doc.defs.myStr
+    assert.equal(def?.type, 'string')
+    if (def?.type === 'string') {
+      assert.deepEqual(def.knownValues, ['a', 'b'])
+    }
+  })
+
+  it('allows section keywords as field names', () => {
+    const [result] = compile(`
+namespace test.keywords {
+  @object
+  type payload {
+    params: string
+    input?: integer
+    message: boolean
+  }
+}
+`)
+    assert.ok(result)
+    const props = result.doc.defs.main?.properties
+    assert.equal(props?.params?.type, 'string')
+    assert.equal(props?.input?.type, 'integer')
+    assert.equal(props?.message?.type, 'boolean')
+    assert.deepEqual(result.doc.defs.main?.required, ['params', 'message'])
+  })
 })

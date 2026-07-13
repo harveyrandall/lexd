@@ -1,0 +1,26 @@
+namespace com.atproto.repo {
+  @query
+  @description("List a range of records in a repository, matching a specific collection. Does not require auth.")
+  type listRecords {
+    params {
+      @description("The handle or DID of the repo.") @format("at-identifier") repo: string
+      @description("The NSID of the record type.") @format("nsid") collection: string
+      @description("The number of records to return.") @minimum(1) @maximum(100) @default(50) limit?: integer
+      cursor?: string
+      @description("Flag to reverse the order of the returned records.") reverse?: boolean
+    }
+    output {
+      encoding: "application/json"
+      schema {
+        cursor?: string
+        records: record[]
+      }
+    }
+  }
+
+  type record {
+    @format("at-uri") uri: string
+    @format("cid") cid: string
+    value: unknown
+  }
+}
