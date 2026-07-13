@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,8 +15,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -25,3 +26,9 @@ jobs:
       - run: pnpm test
       - run: pnpm compile:examples
       - run: pnpm package:vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vscode-lexd-vsix
+          path: packages/vscode-lexd/*.vsix
+          if-no-files-found: error
