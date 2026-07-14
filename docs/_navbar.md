@@ -2,3 +2,5 @@
 * [Syntax](/syntax.md)
 * [CLI](/cli.md)
 * [GitHub](https://github.com/harveyrandall/lexd)
+* [npm](https://www.npmjs.com/org/lexd)
+* [VS Code](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd)

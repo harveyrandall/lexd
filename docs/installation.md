@@ -28,12 +28,12 @@ Publishable packages (MIT, public npm):
 
 | Package | Install |
 | --- | --- |
-| `@lexd/core` | `pnpm add @lexd/core` |
-| `@lexd/cli` | `pnpm add -D @lexd/cli` |
-| `@lexd/vite-plugin` | `pnpm add -D @lexd/vite-plugin` |
-| `@lexd/stdlib-atproto` | `pnpm add @lexd/stdlib-atproto` |
-| `@lexd/stdlib-standard` | `pnpm add @lexd/stdlib-standard` |
-| `@lexd/language-server` | `pnpm add -D @lexd/language-server` |
+| `@lexd/core` | [`npm`](https://www.npmjs.com/package/@lexd/core) · `pnpm add @lexd/core` |
+| `@lexd/cli` | [`npm`](https://www.npmjs.com/package/@lexd/cli) · `pnpm add -D @lexd/cli` |
+| `@lexd/vite-plugin` | [`npm`](https://www.npmjs.com/package/@lexd/vite-plugin) · `pnpm add -D @lexd/vite-plugin` |
+| `@lexd/stdlib-atproto` | [`npm`](https://www.npmjs.com/package/@lexd/stdlib-atproto) · `pnpm add @lexd/stdlib-atproto` |
+| `@lexd/stdlib-standard` | [`npm`](https://www.npmjs.com/package/@lexd/stdlib-standard) · `pnpm add @lexd/stdlib-standard` |
+| `@lexd/language-server` | [`npm`](https://www.npmjs.com/package/@lexd/language-server) · `pnpm add -D @lexd/language-server` |
 
 After installing `@lexd/cli`:
 
@@ -70,7 +70,15 @@ code --install-extension packages/vscode-lexd/vscode-lexd-0.1.0.vsix
 
 The VSIX bundles the language server and stdlib sources — no monorepo path required at runtime.
 
-### Option B — Extension Development Host (F5)
+### Option B - Install from the VS Code Marketplace
+
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd):
+
+\`\`\`bash
+code --install-extension harveyrandall.vscode-lexd
+\`\`\`
+
+### Option C — Extension Development Host (F5)
 
 1. Clone and `pnpm build`
 2. Open the repo in VS Code / Cursor

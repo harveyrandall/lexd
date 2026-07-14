@@ -43,6 +43,8 @@ lexd compile "src/**/*.lexd" -o lexicons
 | [`@lexd/stdlib-standard`](https://github.com/harveyrandall/lexd/tree/main/packages/stdlib-standard) | Curated `site.standard.*` sources |
 | [`@lexd/language-server`](https://github.com/harveyrandall/lexd/tree/main/packages/language-server) | LSP server |
 | `vscode-lexd` | VS Code / Cursor extension (VSIX) |
+| [`@lexd/cli`](https://www.npmjs.com/package/@lexd/cli) | CLI |
+| [VS Code extension](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd) | Editor support |
 
 ## What you can define
 
