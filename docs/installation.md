@@ -65,18 +65,28 @@ git clone https://github.com/harveyrandall/lexd.git
 cd lexd
 pnpm install
 pnpm package:vsix
-code --install-extension packages/vscode-lexd/vscode-lexd-0.1.0.vsix
+code --install-extension packages/vscode-lexd/vscode-lexd-0.1.1.vsix
 ```
+
+The VSIX filename follows `vscode-lexd-<version>.vsix` from `packages/vscode-lexd/package.json`.
 
 The VSIX bundles the language server and stdlib sources — no monorepo path required at runtime.
 
 ### Option B - Install from the VS Code Marketplace
 
-Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd):
+1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd):
 
-\`\`\`bash
+```bash
 code --install-extension harveyrandall.vscode-lexd
-\`\`\`
+```
+
+2. Install to VS Code from the CLI using `ext`:
+
+```bash
+ext install harveyrandall.vscode-lexd
+```
+
+3. Install from browser using vscode:extension/harveyrandall.vscode-lexd
 
 ### Option C — Extension Development Host (F5)
 
@@ -85,6 +95,15 @@ code --install-extension harveyrandall.vscode-lexd
 3. Run **Lexd Extension** from the debug panel
 
 See [Editor & LSP](/editor.md) for details.
+
+### Maintainers: publish to Marketplace
+
+```bash
+pnpm release:vscode              # build → test → VSIX → patch publish
+pnpm release:vscode 0.1.2        # explicit version
+```
+
+See [Publishing → VSIX extension](/publishing.md#vsix-extension) and [`packages/vscode-lexd/README.md`](https://github.com/harveyrandall/lexd/blob/main/packages/vscode-lexd/README.md).
 
 ## Language server only
 
