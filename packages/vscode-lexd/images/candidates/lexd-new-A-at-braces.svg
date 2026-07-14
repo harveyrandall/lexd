@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E8CFF"/><stop offset="1" stop-color="#0A5CE0"/></linearGradient></defs><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+<text x="25" y="90" font-family="Menlo, monospace" font-weight="bold" font-size="86" fill="#fff" text-anchor="middle">{</text>
+<text x="103" y="90" font-family="Menlo, monospace" font-weight="bold" font-size="86" fill="#fff" text-anchor="middle">}</text>
+<text x="64" y="85" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="63" fill="#fff" text-anchor="middle">@</text>
+</svg>

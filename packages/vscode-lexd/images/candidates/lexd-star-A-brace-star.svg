@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#41A0FF"/>
+    <stop offset="0.55" stop-color="#0E5AD8"/>
+    <stop offset="1" stop-color="#0A3AA8"/>
+  </linearGradient>
+  <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.55"/>
+    <stop offset="0.6" stop-color="#dCE9FF" stop-opacity="0.18"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="vig" cx="50%" cy="42%" r="72%">
+    <stop offset="0.6" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#001a4d" stop-opacity="0.32"/>
+  </radialGradient>
+  <linearGradient id="tail" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.95"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+</defs><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#sky)"/><circle cx="18" cy="26" r="1.4" fill="#fff" opacity="0.6"/><circle cx="40" cy="16" r="0.9" fill="#fff" opacity="0.4"/><circle cx="104" cy="22" r="1.6" fill="#fff" opacity="0.65"/><circle cx="114" cy="44" r="1.0" fill="#fff" opacity="0.45"/><circle cx="16" cy="60" r="1.0" fill="#fff" opacity="0.4"/><circle cx="112" cy="74" r="1.3" fill="#fff" opacity="0.5"/><circle cx="24" cy="104" r="1.2" fill="#fff" opacity="0.5"/><circle cx="48" cy="116" r="0.9" fill="#fff" opacity="0.4"/><circle cx="92" cy="110" r="1.5" fill="#fff" opacity="0.55"/><circle cx="108" cy="100" r="0.9" fill="#fff" opacity="0.4"/><circle cx="70" cy="14" r="1.1" fill="#fff" opacity="0.45"/><circle cx="88" cy="16" r="0.8" fill="#fff" opacity="0.35"/><text x="26" y="90" font-family="Menlo, monospace" font-weight="bold" font-size="84" fill="#fff" text-anchor="middle">{</text><text x="102" y="90" font-family="Menlo, monospace" font-weight="bold" font-size="84" fill="#fff" text-anchor="middle">}</text><circle cx="64" cy="60" r="26" fill="url(#halo)"/><polygon points="64.00,37.00 59.62,55.62 41.00,60.00 59.62,64.38 64.00,83.00 68.38,64.38 87.00,60.00 68.38,55.62" fill="#fff"/><polygon points="84.00,37.50 83.01,41.01 79.50,42.00 83.01,42.99 84.00,46.50 84.99,42.99 88.50,42.00 84.99,41.01" fill="#fff" opacity="0.9"/><rect x="4" y="4" width="120" height="120" rx="28" fill="url(#vig)"/></svg>
