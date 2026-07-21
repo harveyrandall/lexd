@@ -1,6 +1,6 @@
 # AT Proto Lexicon DSL (`lexd`)
 
-A TypeScript toolchain that compiles a concise Lexicon DSL (`.lexd`) into AT Protocol lexicon JSON — usable with goat, [`@atproto/lex`](https://www.npmjs.com/package/@atproto/lex), [pdsls](https://pdsls.dev/), and the rest of the Atmosphere tooling.
+A TypeScript toolchain that compiles a concise Lexicon DSL (`.lexd`) into AT Protocol lexicon JSON compatible with goat, [`@atproto/lex`](https://www.npmjs.com/package/@atproto/lex), [pdsls](https://pdsls.dev/), and the rest of the Atmosphere tooling.
 
 **Documentation:** [harveyrandall.github.io/lexd](https://harveyrandall.github.io/lexd/) (Docsify site in [`docs/`](docs/))
 
@@ -81,7 +81,7 @@ namespace com.atproto.repo {
 
 ### Defs modules
 
-If a namespace contains **only** non-primary types (no `@record` / `@object`), the namespace **is** the lexicon id and each type becomes a named def (no `main`) — the `*.defs` pattern:
+If a namespace contains **only** non-primary types (no `@record` / `@object`), the namespace **is** the lexicon id and each type becomes a named def (no `main`). Shown below is the `*.defs` pattern:
 
 ```lexd
 namespace com.atproto.label.defs {
@@ -97,14 +97,14 @@ namespace com.atproto.label.defs {
 ### Imports
 
 ```lexd
-// Named import — aliases `main` of that lexicon (or a named def if the name matches)
+// Named import: aliases `main` of that lexicon (or a named def if the name matches)
 import { StrongRef } from "com.atproto.repo.strongRef"
 import { selfLabels } from "com.atproto.label.defs"
 
 // Rename
 import { StrongRef as Ref } from "com.atproto.repo.strongRef"
 
-// Whole-module import — local name is the last NSID segment
+// Whole-module import: local name is the last NSID segment
 import com.atproto.repo.strongRef
 ```
 
@@ -278,8 +278,8 @@ export default defineConfig({
 })
 ```
 
-- **Disk emit** — writes JSON under `outDir` on `buildStart` and when `.lexd` files change in dev.
-- **Virtual modules** — `import schema from './profile.lexd'` yields the compiled `LexiconDoc` (or an array if the file produces multiple docs).
+- **Disk emit:** writes JSON under `outDir` on `buildStart` and when `.lexd` files change in dev.
+- **Virtual modules:** `import schema from './profile.lexd'` yields the compiled `LexiconDoc` (or an array if the file produces multiple docs).
 
 ---
 
@@ -329,9 +329,9 @@ pnpm build
 
 Then either:
 
-1. **F5** — use the “Lexd Extension” config in `.vscode/launch.json`, or
-2. **Install the folder** — `code --install-extension ./packages/vscode-lexd` (or `cursor --install-extension …`), or
-3. **Package a VSIX** — see [`packages/vscode-lexd/README.md`](packages/vscode-lexd/README.md).
+1. **F5:** use the “Lexd Extension” config in `.vscode/launch.json`, or
+2. **Install the folder:** `code --install-extension ./packages/vscode-lexd` (or `cursor --install-extension …`), or
+3. **Package a VSIX:** see [`packages/vscode-lexd/README.md`](packages/vscode-lexd/README.md).
 
 Open `examples/feed-post.lexd` to try diagnostics, `@` completion, and go-to-definition on `Reply`.
 
