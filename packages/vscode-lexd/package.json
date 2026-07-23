@@ -2,7 +2,7 @@
   "name": "vscode-lexd",
   "displayName": "Lexd (AT Proto Lexicon DSL)",
   "description": "Language support for .lexd — Lexicon DSL for AT Protocol",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "harveyrandall",
   "license": "MIT",
   "repository": {
@@ -13,7 +13,10 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Programming Languages", "Linters"],
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
   "activationEvents": [
     "onLanguage:lexd"
   ],
@@ -22,8 +25,14 @@
     "languages": [
       {
         "id": "lexd",
-        "aliases": ["Lexd", "lexd", "AT Proto Lexicon DSL"],
-        "extensions": [".lexd"],
+        "aliases": [
+          "Lexd",
+          "lexd",
+          "AT Proto Lexicon DSL"
+        ],
+        "extensions": [
+          ".lexd"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -40,7 +49,15 @@
     "bundle": "node --import tsx scripts/bundle.mts",
     "watch": "tsc -p tsconfig.json --watch",
     "vscode:prepublish": "pnpm --filter @lexd/core run build && pnpm --filter @lexd/language-server run build && pnpm run build && pnpm run bundle",
-    "package:vsix": "vsce package --no-dependencies"
+    "package:vsix": "vsce package --no-dependencies",
+    "publish:marketplace": "vsce publish --no-dependencies",
+    "release": "node --import tsx ../../scripts/release-vscode-extension.mts patch",
+    "release:patch": "node --import tsx ../../scripts/release-vscode-extension.mts patch",
+    "release:minor": "node --import tsx ../../scripts/release-vscode-extension.mts minor",
+    "release:major": "node --import tsx ../../scripts/release-vscode-extension.mts major",
+    "vscode:publish:patch": "pnpm exec vsce publish patch --no-dependencies",
+    "vscode:publish:minor": "pnpm exec vsce publish minor --no-dependencies",
+    "vscode:publish:major": "pnpm exec vsce publish major --no-dependencies"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"

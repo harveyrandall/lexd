@@ -354,9 +354,32 @@ pnpm publish:packages # core → stdlib → cli / lsp / vite-plugin
 
 ```bash
 pnpm package:vsix
+# → packages/vscode-lexd/vscode-lexd-<version>.vsix
 ```
 
 CI runs the same command on every push/PR to verify the bundle builds.
+
+### VS Code Marketplace
+
+`vscode-lexd` is not on npm; publish to the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd) with `vsce`. See [`packages/vscode-lexd/README.md`](packages/vscode-lexd/README.md) for full steps.
+
+Recommended one-shot release from the repo root:
+
+```bash
+pnpm release:vscode              # patch
+pnpm release:vscode:minor
+pnpm release:vscode 0.1.2        # explicit version
+```
+
+Manual publish from `packages/vscode-lexd` (after `vsce login harveyrandall`):
+
+```bash
+pnpm run vscode:publish:patch    # bump patch + publish
+pnpm exec vsce publish 0.1.2 --no-dependencies   # explicit version
+pnpm run publish:marketplace -- 0.1.2              # same, via script
+```
+
+Use `--no-dependencies` for all `vsce publish` commands in this monorepo.
 
 ---
 

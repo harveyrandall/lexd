@@ -47,10 +47,41 @@ pnpm publish:packages # core → stdlib → cli / lsp / vite-plugin
 
 ```bash
 pnpm package:vsix
-# → packages/vscode-lexd/vscode-lexd-0.1.0.vsix
+# → packages/vscode-lexd/vscode-lexd-<version>.vsix
 ```
 
 CI builds the VSIX on every push. Download from [Actions artifacts](https://github.com/harveyrandall/lexd/actions) or build locally.
+
+Install from the Marketplace: [harveyrandall.vscode-lexd](https://marketplace.visualstudio.com/items?itemName=harveyrandall.vscode-lexd).
+
+### Publish a new Marketplace version
+
+1. Log in once: `cd packages/vscode-lexd && pnpm exec vsce login harveyrandall` (PAT with Marketplace **Manage** scope).
+2. Run the full release pipeline from the repo root:
+
+```bash
+pnpm release:vscode              # build → test → package:vsix → publish patch
+pnpm release:vscode:minor
+pnpm release:vscode:major
+pnpm release:vscode 0.1.2          # explicit version
+```
+
+3. Or publish manually after build/test:
+
+```bash
+cd packages/vscode-lexd
+
+# Semver bump
+pnpm run vscode:publish:patch
+
+# Explicit version (sets package.json to 0.1.2 and publishes)
+pnpm exec vsce publish 0.1.2 --no-dependencies
+pnpm run publish:marketplace -- 0.1.2
+```
+
+Always pass `--no-dependencies` when using `vsce publish` from this pnpm workspace — the extension bundle is self-contained and `vsce`’s dependency check fails on `workspace:*` links.
+
+See [Editor & LSP](/editor.md#publish-to-marketplace) and [`packages/vscode-lexd/README.md`](https://github.com/harveyrandall/lexd/blob/main/packages/vscode-lexd/README.md).
 
 ## Validation in CI
 

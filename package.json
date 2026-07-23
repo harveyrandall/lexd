@@ -12,7 +12,11 @@
     "stdlib:bootstrap": "node --import tsx scripts/bootstrap-stdlib.mts",
     "pack:packages": "pnpm --filter @lexd/core pack && pnpm --filter @lexd/stdlib-atproto pack && pnpm --filter @lexd/stdlib-standard pack && pnpm --filter @lexd/cli pack && pnpm --filter @lexd/language-server pack && pnpm --filter @lexd/vite-plugin pack",
     "publish:packages": "pnpm --filter @lexd/core publish --access public --no-git-checks && pnpm --filter @lexd/stdlib-atproto publish --access public --no-git-checks && pnpm --filter @lexd/stdlib-standard publish --access public --no-git-checks && pnpm --filter @lexd/cli publish --access public --no-git-checks && pnpm --filter @lexd/language-server publish --access public --no-git-checks && pnpm --filter @lexd/vite-plugin publish --access public --no-git-checks",
-    "package:vsix": "pnpm --filter vscode-lexd run package:vsix"
+    "package:vsix": "pnpm --filter vscode-lexd run package:vsix",
+    "release:vscode": "node --import tsx scripts/release-vscode-extension.mts",
+    "release:vscode:patch": "node --import tsx scripts/release-vscode-extension.mts patch",
+    "release:vscode:minor": "node --import tsx scripts/release-vscode-extension.mts minor",
+    "release:vscode:major": "node --import tsx scripts/release-vscode-extension.mts major"
   },
   "devDependencies": {
     "tsx": "^4.19.4",

@@ -13,7 +13,7 @@ Lexd includes a Language Server and VS Code / Cursor extension for `.lexd` files
 
 ## VS Code / Cursor extension
 
-Package name: `vscode-lexd` (publisher: `lexd`)
+Package name: `vscode-lexd` (publisher: `harveyrandall`, Marketplace id: `harveyrandall.vscode-lexd`)
 
 ### Install VSIX
 
@@ -22,8 +22,10 @@ git clone https://github.com/harveyrandall/lexd.git
 cd lexd
 pnpm install
 pnpm package:vsix
-code --install-extension packages/vscode-lexd/vscode-lexd-0.1.0.vsix
+code --install-extension packages/vscode-lexd/vscode-lexd-0.1.1.vsix
 ```
+
+Output filename matches `version` in `packages/vscode-lexd/package.json`.
 
 The VSIX bundles:
 
@@ -43,6 +45,26 @@ The VSIX bundles:
 1. Introduce a syntax error — diagnostic appears
 2. Type `@` in a type body — constraint completions
 3. **Go to Definition** on `Reply` in `reply?: Reply`
+
+### Publish to Marketplace
+
+For extension maintainers. One-shot release from repo root:
+
+```bash
+pnpm release:vscode              # patch
+pnpm release:vscode:minor
+pnpm release:vscode 0.1.2        # explicit version
+```
+
+From `packages/vscode-lexd` after `pnpm exec vsce login harveyrandall`:
+
+```bash
+pnpm run vscode:publish:patch
+pnpm exec vsce publish 0.1.2 --no-dependencies
+pnpm run publish:marketplace -- 0.1.2
+```
+
+Use `--no-dependencies` on every `vsce publish` in this monorepo. Details: [Publishing](/publishing.md#vsix-extension).
 
 ## Language server (`@lexd/language-server`)
 
